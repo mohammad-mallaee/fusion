@@ -1,0 +1,2 @@
+class AdbError(Exception):
+    pass
