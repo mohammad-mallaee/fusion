@@ -68,7 +68,6 @@ class AdbClient:
     def list_devices(self) -> tuple[list[str], list[str]]:
         self.send_command("host:devices")
         output = self.read_string_block()
-        devices_output = output.split("\n")[:-1]
         devices = [device.split("\t") for device in output.split("\n")[:-1]]
         online_devices = [device[0] for device in devices if device[1] == "device" or device[1] == "recovery"]
         offiline_devices = [device[0] for device in devices if device[1] == "offline"]

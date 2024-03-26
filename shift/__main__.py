@@ -1,5 +1,4 @@
 import argparse
-import time
 
 from shift.client import AdbClient
 from shift.device import Device
@@ -15,7 +14,7 @@ parser = argparse.ArgumentParser(prog="shift",
     description="keep your phone in sync with your desktop",
     epilog="I'll be happy to take your comments and feedbacks")
 
-parser.add_argument("command", choices=["pull", "push"])
+parser.add_argument("command", choices=[PULL, PUSH])
 parser.add_argument("source")
 parser.add_argument("destination", nargs="?", default="./")
 parser.add_argument("-d", "--delete", action="store_true")

@@ -1,6 +1,5 @@
 import os
-from stat import S_IFREG
-from typing import List, Literal
+from typing import Literal
 from shift.helpers.fileListing import FileListing
 from shift.helpers.file import File
 from shift.helpers.stat import Stat

@@ -1,14 +1,11 @@
 import struct
-import time
 import os
 import stat as st
-from shift import client
 
 from shift.client import AdbClient
 from shift.exceptions import AdbError
 from shift.storage import Storage
 from shift.helpers.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
-from shift.helpers.utils import truncate_middle
 from shift.helpers.fileListing import FileListing
 from shift.helpers.file import File
 from shift.helpers.stat import Stat
@@ -144,7 +141,6 @@ class Device:
     def _push_file(self, progress: Progress, file: File):
         progress.start_file(file)
         with file:
-            start = time.time()
             adb_path = f"{file.remote_path},{file.mode}"
             self.send_sync_command(self.client, "SEND", adb_path)
             transferred_size = 0
@@ -175,7 +171,6 @@ class Device:
     def _pull_file(self, storage: Storage, progress: Progress, file: File):
         progress.start_file(file)
         self.send_sync_command(self.client, "RECV", file.remote_path)
-        start = time.time()
         transferred_size = 0
         storage.create(file)
         while True:

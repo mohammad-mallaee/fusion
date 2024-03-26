@@ -1,10 +1,6 @@
-from shift.client import AdbClient
 from shift.device import Device
-from time import time
-from config import config
 from shift.storage import Storage
 
-from shift.helpers.file import File
 from shift.helpers.fileListing import FileListing
 from shift.helpers.progress import Progress
 
@@ -18,11 +14,7 @@ def shift(device: Device, args):
     def get_dest_path(path):
         return path.replace(source, destination)
 
-    client = AdbClient()
     storage = Storage()
-
-    start = time()
-    total_size = 0
     print()
 
     if command == PULL:
@@ -56,7 +48,7 @@ def shift(device: Device, args):
             progress = Progress(file_listing.total_size, file_listing.valid)
             progress.start()
             print(f"Total files to transfer: {len(file_listing.files)}")
-            print(f"Total size to transfer: {round(total_size / 1024 / 1024, 2)} MB")
+            print(f"Total size to transfer: {round(file_listing.total_size / 1024 / 1024, 2)} MB")
             print("-" * 56)
             print(len(file_listing.files))
             device.push_files(progress, *file_listing.files)

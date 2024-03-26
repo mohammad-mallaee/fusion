@@ -1,19 +1,23 @@
+import pytermgui as ptg
 import time
-from pytermgui import Container, tim, palette
+class B:
+    def __init__(self) -> None:
+        self.proccessed: int = 40
+        self.valid: int = 12
+        self.transfer_size: int = 125723
+        self.total_size: int = 283749824
+    
+def macro_time(fmt: str) -> str:
+    return time.strftime(fmt)
 
-palette.regenerate(primary="lightgreen")
-container = Container(
-    "[bold accent]This is my example",
-    "",
-    "[surface+1 dim italic]It is very cool, you see",
-    "",
-    {"My first label": ["Some button"]},
-    {"My second label": [True]},
-    "",
-    ("Left side", "Middle", "Right side"),
-    "",
-    ["Submit button"]
-)
+def main():
+    ptg.tim.define("!time", macro_time)
 
-for line in container.get_lines():
-    tim.print(line)
+    with ptg.WindowManager() as manager:
+        manager.layout.add_slot("Body")
+        manager.add(
+            ptg.Window("[bold]The current time is:[/]\n\n[!time 75]%c", box="EMPTY")
+        )
+
+if __name__ == "__main__":
+    main()

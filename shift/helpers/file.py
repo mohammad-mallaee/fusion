@@ -1,9 +1,7 @@
 import stat
 from io import BufferedReader, BufferedWriter
-from subprocess import PIPE
 from time import time
 import os
-from pathlib import Path
 
 default_file_mode = 0o755 | stat.S_IFREG
 
