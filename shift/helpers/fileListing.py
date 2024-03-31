@@ -1,17 +1,34 @@
+from pytermgui import Container
+
 from shift.helpers.file import File
 from config import config
 
-class FileListing:
-    def __init__(self, get_dest_path, should_sync=None, check_exclution=None, show_progress=None) -> None:
-        self.proccessed: int = 0
+
+class FileListing(Container):
+    def __init__(
+        self, get_dest_path, should_sync=None, check_exclution=None, **attrs
+    ) -> None:
+        super().__init__(**attrs)
+        self.processed: int = 0
         self.valid: int = 0
         self.transfer_size: int = 0
         self.total_size: int = 0
         self.files: list[File] = []
         self.should_sync = self.should_sync if should_sync is None else should_sync
         self.get_dest_path = get_dest_path
-        self.is_excluded = self.is_excluded if check_exclution is None else check_exclution
-        self.show_progress = self.show_progress if show_progress is None else show_progress
+        self.is_excluded = (
+            self.is_excluded if check_exclution is None else check_exclution
+        )
+        self.set_widgets(["", ""])
+
+    def append_process(self, file: File):
+        self.processed += 1
+        self.total_size += file.size
+
+    def append(self, file: File):
+        self.files.append(file)
+        self.transfer_size += file.size
+        self.valid += 1
 
     def is_excluded(self, path):
         return path in config["excluded_paths"]
@@ -19,5 +36,10 @@ class FileListing:
     def should_sync(self, path):
         return True
 
-    def show_progress(self):
-        print(f"Processed {self.proccessed} files, transferring {self.valid} of them.", end="\r")
+    def update_progress(self):
+        self.set_widgets(
+            [
+                f"processed {self.processed} and transferring {self.valid} of them",
+                f"total transfer size: {round(self.transfer_size / 1024 / 1024, 2)} MB",
+            ]
+        )

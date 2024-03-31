@@ -1,7 +1,10 @@
 import stat
 
+
 class Stat:
-    def __init__(self, path:str, name:str, mode:int, size:int, modified_time:int) -> None:
+    def __init__(
+        self, path: str, name: str, mode: int, size: int, modified_time: int
+    ) -> None:
         self.path = path
         self.name = name
         self.size = size

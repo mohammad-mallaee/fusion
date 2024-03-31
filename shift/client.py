@@ -7,7 +7,13 @@ from shift.helpers.constants import OKAY, FAIL
 class AdbClient:
     def __init__(self, address=("127.0.0.1", 5037)):
         self.address = address
+
+    def __enter__(self):
         self.connection = self.create_connection()
+        return self
+
+    def __exit__(self, *args):
+        self.connection.close()
 
     def reset_connection(self):
         self.connection.close()
@@ -38,7 +44,7 @@ class AdbClient:
     def recv(self, size: int):
         return self.connection.recv(size)
 
-    def send_command(self, cmd: str, reset_connection = False):
+    def send_command(self, cmd: str):
         encoded_command = cmd.encode()
         encoded_command_length = "{:04x}".format(len(encoded_command)).encode()
         self.send(encoded_command_length + encoded_command)
@@ -69,28 +75,20 @@ class AdbClient:
         self.send_command("host:devices")
         output = self.read_string_block()
         devices = [device.split("\t") for device in output.split("\n")[:-1]]
-        online_devices = [device[0] for device in devices if device[1] == "device" or device[1] == "recovery"]
+        online_devices = [
+            device[0]
+            for device in devices
+            if device[1] == "device" or device[1] == "recovery"
+        ]
         offiline_devices = [device[0] for device in devices if device[1] == "offline"]
         self.reset_connection()
         return online_devices, offiline_devices
 
-    # These are to be gone if no proper usecase is found
-    # -----------------------------------------------------------------------------------
-    # def read_until_close(self, encoding: str | None = "utf-8") -> Union[str, bytes]:
-    #     content = b""
-    #     while True:
-    #         chunk = self.connection.recv(4096)
-    #         if not chunk:
-    #             break
-    #         content += chunk
-    #     return content.decode(encoding, errors="replace") if encoding else content
-
-    # def read_string_until_close(self, encoding: str = "utf-8") -> str:
-    #     content = b""
-    #     while True:
-    #         chunk = self.connection.recv(4096)
-    #         if not chunk:
-    #             break
-    #         content += chunk
-    #     return content.decode(encoding)
-    # ------------------------------------------------------------------------------------
+    def read_string_until_close(self, encoding: str = "utf-8") -> str:
+        content = b""
+        while True:
+            chunk = self.connection.recv(4096)
+            if not chunk:
+                break
+            content += chunk
+        return content.decode(encoding)

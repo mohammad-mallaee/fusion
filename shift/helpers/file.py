@@ -10,20 +10,20 @@ default_file_mode = 0o755 | stat.S_IFREG
 class File:
     def __init__(
         self,
-        local_path,
-        remote_path,
-        name,
-        size,
+        local_path: str,
+        remote_path: str,
+        name: str,
+        size: int,
         modified_time=int(time()),
-        mode=default_file_mode,
+        mode: int = default_file_mode,
     ):
-        self.remote_path: str = remote_path
-        self.local_path: str = local_path
-        self.modified_time: int = modified_time
-        self.mode: int = mode
-        self.size: int = size
-        self.buffer: BufferedWriter | BufferedReader
-        self.name: str = name
+        self.remote_path = remote_path
+        self.local_path = local_path
+        self.modified_time = modified_time
+        self.mode = mode
+        self.size = size
+        self.name = name
+        self.buffer: BufferedWriter | BufferedReader = None
 
     def __enter__(self):
         self.buffer = self.__open()

@@ -1,16 +1,17 @@
 import os
-from typing import Literal
 from shift.helpers.fileListing import FileListing
 from shift.helpers.file import File
 from shift.helpers.stat import Stat
+from shift.helpers.interface import PathInterface
 
 
-class Storage:
-    def list_files(self, path, file_listing:FileListing) -> None:
+class Storage(PathInterface):
+    def list_files(self, path, file_listing: FileListing) -> None:
         for root, dirs, file_paths in os.walk(path):
-            dirs[:] = [d for d in dirs if not file_listing.is_excluded(os.path.join(root, d))]
+            dirs[:] = [
+                d for d in dirs if not file_listing.is_excluded(os.path.join(root, d))
+            ]
             for file_path in file_paths:
-                file_listing.proccessed += 1
                 file_path = os.path.join(root, file_path)
                 if file_listing.is_excluded(file_path):
                     continue
@@ -23,16 +24,18 @@ class Storage:
                     int(file_stats.st_mtime),
                     file_stats.st_mode,
                 )
+                file_listing.append_process(file)
                 if file_listing.should_sync(file):
-                    file_listing.valid += 1
-                    file_listing.total_size += file.size
-                    file_listing.files.append(file)
-            file_listing.show_progress()
+                    file_listing.append(file)
+            file_listing.update_progress()
 
     def should_sync(self, file: File):
         try:
             file_stats = os.stat(file.local_path)
-            return file.modified_time > int(file_stats.st_mtime) or file.size != file_stats.st_size
+            return (
+                file.modified_time > int(file_stats.st_mtime)
+                or file.size != file_stats.st_size
+            )
         except FileNotFoundError:
             return True
 
@@ -48,31 +51,21 @@ class Storage:
             file.buffer.close()
         file.set_modified_time()
 
-
     def exists(self, path):
         return os.path.exists(path)
 
-    def stat(self, path, follow_symlinks = True):
+    def stat(self, path, follow_symlinks=True):
         stats = os.stat(path, follow_symlinks=follow_symlinks)
         return Stat(
             name=os.path.basename(path),
             path=path,
             mode=stats.st_mode,
             modified_time=int(stats.st_mtime),
-            size=stats.st_size
+            size=stats.st_size,
         )
 
-
-    def is_file(self, path) -> Literal[False] | File:
-        file_stats = os.stat(path)
-        if oct(file_stats.st_mode).startswith("0o10"):
-            return File(
-                path,
-                None,
-                os.path.basename(path),
-                file_stats.st_size,
-                int(file_stats.st_mtime),
-                file_stats.st_mode,
-            )
-        else:
-            return False
+    def get_file(self, data: str | Stat):
+        stat = data
+        if isinstance(data, str):
+            stat = self.stat(data)
+        return File(stat.path, None, stat.name, stat.size, stat.modified_time)
