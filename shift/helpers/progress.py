@@ -1,12 +1,12 @@
-from pytermgui import Container, Label
+from pytermgui import Container, Label, boxes, Window
 import time
 from shift.helpers.file import File
 from shift.helpers.utils import truncate_middle
 
 
 class Progress(Container):
-    def __init__(self, total_size, total_files, **attrs) -> None:
-        super().__init__(**attrs)
+    def __init__(self, total_size, total_files) -> None:
+        super().__init__(box=boxes.Box(["     ", "  x  ", "     "]))
         self.total_size = total_size
         self.total_transfer = 0
         self.file_transfer = 0
@@ -14,6 +14,9 @@ class Progress(Container):
         self.files = 0
         self.set_widgets(["", "", ""])
         self.file = File("", "", "", 0, 0, 0)
+        self.window = Window(self, box="EMPTY_VERTICAL", width=80).set_title(
+            "Transferring Files"
+        )
 
     def start(self):
         self.start_time = time.time()

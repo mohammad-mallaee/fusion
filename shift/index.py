@@ -1,8 +1,6 @@
-import pytermgui as ptg
-from pytermgui import boxes
-
 from shift.device import Device
 from shift.storage import Storage
+from shift.ui import UserInterface
 
 from shift.helpers.fileListing import FileListing
 from shift.helpers.progress import Progress
@@ -10,7 +8,7 @@ from shift.helpers.progress import Progress
 from shift.helpers.constants import PULL
 
 
-def shift(device: Device, manager: ptg.WindowManager, args):
+def shift(device: Device, ui: UserInterface, args):
     source = args.source
     command = args.command
     destination = args.destination
@@ -19,8 +17,6 @@ def shift(device: Device, manager: ptg.WindowManager, args):
         return path.replace(source, destination)
 
     storage = Storage()
-    print()
-
     if command == PULL:
         if args.is_file:
             progress = Progress(source.size, 1)
@@ -29,19 +25,11 @@ def shift(device: Device, manager: ptg.WindowManager, args):
             file_listing = FileListing(
                 get_dest_path,
                 storage.should_sync,
-                box=boxes.Box(["     ", "  x  ", "     "]),
             )
-            proccessing_window = ptg.Window(
-                file_listing, box="EMPTY_VERTICAL", width=80
-            ).set_title("Processing files")
-            manager.add(proccessing_window)
+            ui.show(file_listing.window)
             device.list_files(source, file_listing)
             progress = Progress(file_listing.transfer_size, file_listing.valid)
-            progress_window = ptg.Window(
-                progress, box="EMPTY_VERTICAL", width=80
-            ).set_title("Transferring files")
-            manager.remove(proccessing_window)
-            manager.add(progress_window)
+            ui.replace_current(progress.window)
             progress.start()
             device.pull_files(storage, progress, *file_listing.files)
             progress.end()

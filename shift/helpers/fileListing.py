@@ -1,14 +1,12 @@
-from pytermgui import Container
+from pytermgui import Container, boxes, Window
 
 from shift.helpers.file import File
 from config import config
 
 
 class FileListing(Container):
-    def __init__(
-        self, get_dest_path, should_sync=None, check_exclution=None, **attrs
-    ) -> None:
-        super().__init__(**attrs)
+    def __init__(self, get_dest_path, should_sync=None, check_exclution=None) -> None:
+        super().__init__(box=boxes.Box(["     ", "  x  ", "     "]))
         self.processed: int = 0
         self.valid: int = 0
         self.transfer_size: int = 0
@@ -20,6 +18,9 @@ class FileListing(Container):
             self.is_excluded if check_exclution is None else check_exclution
         )
         self.set_widgets(["", ""])
+        self.window = Window(self, box="EMPTY_VERTICAL", width=80).set_title(
+            "Processing Files"
+        )
 
     def append_process(self, file: File):
         self.processed += 1

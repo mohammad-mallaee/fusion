@@ -1,16 +1,15 @@
 import argparse
 import os
 import stat
-from threading import Thread
-from pytermgui import WindowManager
 
 from shift.client import AdbClient
 from shift.device import Device
 
-# from shift.index import shift
+from shift.index import shift
 
 from shift.helpers.constants import PULL, PUSH
 from shift.helpers.interface import PathInterface
+from shift.ui import UserInterface
 
 from shift.storage import Storage
 
@@ -67,8 +66,7 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
 
 
 if __name__ == "__main__":
-    with AdbClient() as client, WindowManager() as manager:
-        Thread(target=manager.run).start()
+    with AdbClient() as client, UserInterface() as ui:
         storage = Storage()
         online_devices, offline_devices = client.list_devices()
         if len(online_devices) > 1:
@@ -78,16 +76,14 @@ if __name__ == "__main__":
             device = Device(device_serial, client)
 
             command = args.command
+            args.is_file = False
 
             if command == "pull":
                 process_paths(device, storage, args)
             elif command == "push":
                 process_paths(storage, device, args)
 
-            print(args)
-
-            # shift(device_serial, "pull","/sdcard", "/Users/mohammad/PhoneBackup")
-            # shift(device_serial, "push", "/Users/mohammad/PhoneBackup", "/sdcard")
+            shift(device, ui, args)
         else:
             print("There is no device connected")
         # manager.stop()
