@@ -40,7 +40,7 @@ class FileListing(Container):
     def update_progress(self):
         self.set_widgets(
             [
-                f"processed {self.processed} and transferring {self.valid} of them",
+                f"processed {self.processed} files and transferring {self.valid} of them",
                 f"total transfer size: {round(self.transfer_size / 1024 / 1024, 2)} MB",
             ]
         )

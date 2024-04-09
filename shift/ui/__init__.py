@@ -1,20 +1,17 @@
 from pytermgui import WindowManager, Window
-from threading import Thread
+from shift.helpers.worker import Worker
 
 
 class UserInterface(WindowManager):
     def __init__(self) -> None:
+        super().__init__()
         self.current_window: Window = None
         self.last_window: Window = None
-        self.thread = Thread(target=self.run)
-        super().__init__()
+        self.thread = Worker(self.run)
 
     def __enter__(self):
-        self.start()
-        return self
-
-    def start(self):
         self.thread.start()
+        return self
 
     def show(self, window: Window):
         self.add(window)

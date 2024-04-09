@@ -32,7 +32,7 @@ def shift(device: Device, ui: UserInterface, args):
             ui.replace_current(progress.window)
             progress.start()
             device.pull_files(storage, progress, *file_listing.files)
-            progress.end()
+            progress.end(ui)
 
     # elif command == PUSH:
     #     file = storage.is_file(source)

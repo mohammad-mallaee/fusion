@@ -10,6 +10,8 @@ from shift.index import shift
 from shift.helpers.constants import PULL, PUSH
 from shift.helpers.interface import PathInterface
 from shift.ui import UserInterface
+from shift.ui.prompt_list import PromptList
+from shift.ui.message import show_message
 
 from shift.storage import Storage
 
@@ -66,24 +68,42 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
 
 
 if __name__ == "__main__":
-    with AdbClient() as client, UserInterface() as ui:
-        storage = Storage()
-        online_devices, offline_devices = client.list_devices()
-        if len(online_devices) > 1:
-            print("select one device")
-        elif len(online_devices) == 1:
-            device_serial = online_devices[0]
-            device = Device(device_serial, client)
+    try:
+        c = AdbClient().__enter__()
+        c.__exit__()
+    except FileNotFoundError:
+        show_message("Connection Error", "Couldn't find adb")
+    else:
+        with AdbClient() as client:
+            storage = Storage()
+            online_devices, offline_devices = client.list_devices()
 
-            command = args.command
-            args.is_file = False
+            def start_transfer(device_serial):
+                device = Device(device_serial, client)
+                command = args.command
+                args.is_file = False
+                if command == "pull":
+                    process_paths(device, storage, args)
+                elif command == "push":
+                    process_paths(storage, device, args)
+                with UserInterface() as ui:
+                    shift(device, ui, args)
 
-            if command == "pull":
-                process_paths(device, storage, args)
-            elif command == "push":
-                process_paths(storage, device, args)
-
-            shift(device, ui, args)
-        else:
-            print("There is no device connected")
-        # manager.stop()
+            if len(online_devices) > 1:
+                PromptList(
+                    online_devices,
+                    "Select a device",
+                    lambda index: start_transfer(online_devices[index]),
+                )
+            elif len(online_devices) == 1:
+                start_transfer(online_devices[0])
+            else:
+                show_message(
+                    "Connection Error",
+                    "\n".join(
+                        [
+                            "There is no device connected",
+                            "You can check the connected devices with `adb devices` command",
+                        ]
+                    ),
+                )

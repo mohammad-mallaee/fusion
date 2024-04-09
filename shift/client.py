@@ -33,8 +33,8 @@ class AdbClient:
         socket.connect(self.address)
 
     def create_connection(self):
-        adb_socket = socket.socket()
         self.start_server()
+        adb_socket = socket.socket()
         self.connect_to_server(adb_socket)
         return adb_socket
 

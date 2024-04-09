@@ -1,4 +1,4 @@
-from pytermgui import Container, Label, boxes, Window
+from pytermgui import Container, Label, boxes, Window, Button
 import time
 from shift.helpers.file import File
 from shift.helpers.utils import truncate_middle
@@ -22,9 +22,32 @@ class Progress(Container):
         self.start_time = time.time()
         self.update_progress()
 
-    def end(self):
+    def end(self, ui=None):
         self.end_time = time.time()
-        self.update_progress()
+        speed = round(
+            self.total_transfer / 1024 / 1024 / (time.time() - self.start_time), 1
+        )
+        self.window.set_title("Transfer Result")
+        self.set_widgets(
+            [
+                Label(
+                    (
+                        f"transffered {self.files} / {self.total_files} files and "
+                        f"{round(self.total_transfer / 1024 / 1024, 1)}MB / {round(self.total_size / 1024 / 1024, 1)}MB"
+                    ),
+                    parent_align=0,
+                ),
+                Label(
+                    f"Avg. speed : {speed} MB/s",
+                    parent_align=0,
+                ),
+                Label(
+                    f"Time elapsed : {round(time.time() - self.start_time, 1)}s",
+                    parent_align=0,
+                ),
+                Button("OK", onclick=ui.stop if ui else None),
+            ]
+        )
 
     def start_file(self, file: File):
         self.file_start_time = time.time()
