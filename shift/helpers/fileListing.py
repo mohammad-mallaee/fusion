@@ -1,4 +1,4 @@
-from pytermgui import Container, boxes, Window
+from pytermgui import Container, boxes, Window, Button
 
 from shift.helpers.file import File
 from config import config
@@ -30,6 +30,16 @@ class FileListing(Container):
         self.files.append(file)
         self.transfer_size += file.size
         self.valid += 1
+    
+    def show_result(self, ui):
+        self.window.set_title("File Listing Result")
+        self.set_widgets(
+            [
+                f"processed {self.processed} files and transferring {self.valid} of them",
+                f"total transfer size: {round(self.transfer_size / 1024 / 1024, 2)} MB",
+                Button("OK", onclick=ui.stop if ui else None),
+            ]
+        )
 
     def is_excluded(self, path):
         return path in config["excluded_paths"]
