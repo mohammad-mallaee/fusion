@@ -4,12 +4,12 @@ from shift.helpers.file import File
 from config import config
 
 
-class SyncList(Container):
+class DeleteList(Container):
     def __init__(self, convert_path, validate=None, check_exclution=None) -> None:
         super().__init__(box=boxes.Box(["     ", "  x  ", "     "]))
         self.processed: int = 0
         self.valid: int = 0
-        self.transfer_size: int = 0
+        self.delete_size: int = 0
         self.total_size: int = 0
         self.files: list[File] = []
         self.validate = self.validate if validate is None else validate
@@ -28,16 +28,16 @@ class SyncList(Container):
 
     def append(self, file: File):
         self.files.append(file)
-        self.transfer_size += file.size
+        self.delete_size += file.size
         self.valid += 1
 
     def show_result(self, ui):
-        self.window.set_title("File Listing Result")
+        self.window.set_title("Delete Listing Result")
         self.set_widgets(
             [
-                f"processed {self.processed} files and transferring {self.valid} of them",
-                f"total transfer size: {round(self.transfer_size / 1024 / 1024, 2)} MB",
-                Button("OK", onclick=lambda _: ui.stop() if ui else None),
+                f"processed {self.processed} files and deleting {self.valid} of them",
+                f"total delete size: {round(self.delete_size / 1024 / 1024, 2)} MB",
+                Button("OK", onclick=lambda: ui.remove(self.window) if ui else None),
             ]
         )
 
@@ -45,12 +45,12 @@ class SyncList(Container):
         return path in config["excluded_paths"]
 
     def validate(self, path):
-        return True
+        return False
 
     def update_progress(self):
         self.set_widgets(
             [
-                f"processed {self.processed} files and transferring {self.valid} of them",
-                f"total transfer size: {round(self.transfer_size / 1024 / 1024, 2)} MB",
+                f"processed {self.processed} files and deleting {self.valid} of them",
+                f"total delete size: {round(self.delete_size / 1024 / 1024, 2)} MB",
             ]
         )

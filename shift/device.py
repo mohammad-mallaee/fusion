@@ -6,7 +6,7 @@ from shift.client import AdbClient
 from shift.exceptions import AdbError
 from shift.storage import Storage
 from shift.helpers.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
-from shift.helpers.fileListing import FileListing
+from shift.helpers.fileListing import SyncList
 from shift.helpers.file import File
 from shift.helpers.stat import Stat
 from shift.helpers.progress import Progress
@@ -51,6 +51,9 @@ class Device(PathInterface):
         _, size, mtime = struct.unpack("<III", self.client.recv(12))
         return file.modified_time > mtime and file.size != size
 
+    def should_delete(self, file: File):
+        return not self.exists(file.remote_path)
+
     def stat(self, path, follow_symlinks=False):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
@@ -73,6 +76,15 @@ class Device(PathInterface):
             name=os.path.basename(path),
         )
 
+    def delete_files(self, file_listing: SyncList):
+        for file in file_listing.files:
+            try:
+                self.client.reset_connection()
+                self.open_transport()
+                self.client.send_shell_command(f'rm "{file.remote_path}"')
+            except Exception:
+                raise
+
     def exists(self, path):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
@@ -87,7 +99,7 @@ class Device(PathInterface):
             stat = self.stat(data)
         return File(None, stat.path, stat.name, stat.size, stat.modified_time)
 
-    def list_files(self, path, file_listing: FileListing) -> None:
+    def list_files(self, path, file_listing: SyncList) -> None:
         def _ls(client, path):
             self.send_sync_command("LIST", path)
             dirs = []
@@ -107,7 +119,7 @@ class Device(PathInterface):
                         continue
                     if st.S_ISREG(mode):
                         file = File(
-                            file_listing.get_dest_path(entity_path),
+                            file_listing.convert_path(entity_path),
                             entity_path,
                             name,
                             size,
@@ -115,7 +127,7 @@ class Device(PathInterface):
                             mode,
                         )
                         file_listing.append_process(file)
-                        if file_listing.should_sync(file):
+                        if file_listing.validate(file):
                             file_listing.append(file)
                     elif name != "." and name != "..":
                         dirs.append(entity_path)
@@ -142,6 +154,7 @@ class Device(PathInterface):
                 chunk = file.buffer.read(64 * 1024)
                 if not chunk:
                     self.client.send(b"DONE" + struct.pack("<I", file.modified_time))
+                    progress.end_file()
                     break
                 chunk_size = len(chunk)
                 self.client.send(b"DATA" + struct.pack("<I", chunk_size))
@@ -153,7 +166,6 @@ class Device(PathInterface):
                 raise AdbError(status_msg)
             else:
                 self.client.recv(4)
-                progress.show_file_result()
 
     def push_files(self, progress: Progress, *files: File):
         for file in files:

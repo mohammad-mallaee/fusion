@@ -1,12 +1,12 @@
 import os
-from shift.helpers.fileListing import FileListing
+from shift.helpers.fileListing import SyncList
 from shift.helpers.file import File
 from shift.helpers.stat import Stat
 from shift.helpers.interface import PathInterface
 
 
 class Storage(PathInterface):
-    def list_files(self, path, file_listing: FileListing) -> None:
+    def list_files(self, path, file_listing: SyncList) -> None:
         for root, dirs, file_paths in os.walk(path):
             dirs[:] = [
                 d for d in dirs if not file_listing.is_excluded(os.path.join(root, d))
@@ -18,14 +18,14 @@ class Storage(PathInterface):
                 file_stats = os.stat(file_path)
                 file = File(
                     file_path,
-                    file_listing.get_dest_path(file_path),
+                    file_listing.convert_path(file_path),
                     os.path.basename(file_path),
                     file_stats.st_size,
                     int(file_stats.st_mtime),
                     file_stats.st_mode,
                 )
                 file_listing.append_process(file)
-                if file_listing.should_sync(file):
+                if file_listing.validate(file):
                     file_listing.append(file)
             file_listing.update_progress()
 
@@ -39,6 +39,9 @@ class Storage(PathInterface):
         except FileNotFoundError:
             return True
 
+    def should_delete(self, file: File):
+        return not self.exists(file.local_path)
+
     def create(self, file: File):
         file.create()
         file.open_for_writing()
@@ -50,6 +53,13 @@ class Storage(PathInterface):
         if not file.buffer.closed:
             file.buffer.close()
         file.set_modified_time()
+    
+    def delete_files(self, file_listing: SyncList):
+        for file in file_listing.files:
+            try:
+                os.remove(file.local_path)
+            except Exception:
+                pass
 
     def exists(self, path):
         return os.path.exists(path)
