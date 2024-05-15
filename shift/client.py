@@ -1,6 +1,8 @@
 import subprocess
 import socket
 
+from shift.exceptions import AdbNotFound
+from shift.helpers.utils import write_log
 from shift.helpers.constants import OKAY, FAIL
 
 
@@ -27,7 +29,14 @@ class AdbClient:
 
     @staticmethod
     def start_server():
-        subprocess.run(["adb", "start-server"], timeout=20)
+        result = subprocess.run(
+            ["adb", "start-server"],
+            shell=True,
+            stderr=subprocess.PIPE,
+        )
+        if result.stderr:
+            write_log("AdbError", result.stderr.decode())
+            raise FileNotFoundError()
 
     def connect_to_server(self, socket: socket.socket):
         socket.connect(self.address)

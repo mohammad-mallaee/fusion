@@ -63,7 +63,7 @@ class Device(PathInterface):
         if st.S_ISLNK(mode) and follow_symlinks:
             self.client.reset_connection()
             self.open_transport()
-            self.client.send_shell_command(f"readlink -f {path}")
+            self.client.send_shell_command(f'readlink -f "{path}"')
             real_path = self.client.read_string_until_close().split("\n")[0]
             self.client.reset_connection()
             self.prepare_sync()

@@ -1,5 +1,7 @@
 from concurrent.futures import Future
 import threading
+from shift.helpers.utils import write_log
+
 class Worker(object):
     def __init__(self, fn, args=()):
         self.future = Future()
@@ -17,7 +19,8 @@ class Worker(object):
         try:
             self.future.set_result(self._fn(*self._args))
         except BaseException as e:
+            write_log("ERROR", e)
             self.future.set_exception(e)
 
-        if(self._cb):
+        if self._cb:
             self._cb(self.future.result())

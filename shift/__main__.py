@@ -1,6 +1,7 @@
 import argparse
 import os
 import stat
+import traceback
 
 from shift.client import AdbClient
 from shift.device import Device
@@ -12,6 +13,7 @@ from shift.helpers.interface import PathInterface
 from shift.ui import UserInterface
 from shift.ui.prompt_list import PromptList
 from shift.ui.message import show_message
+from shift.helpers.utils import write_log
 
 from shift.storage import Storage
 
@@ -87,7 +89,11 @@ if __name__ == "__main__":
                 elif command == "push":
                     process_paths(storage, device, args)
                 with UserInterface() as ui:
-                    shift(device, ui, args)
+                    try:
+                        shift(device, ui, args)
+                    except Exception as e:
+                        write_log("ERROR", traceback.format_exc())
+                        show_message("Unexpected Error", str(e), manager=ui)
 
             if len(online_devices) > 1:
                 PromptList(
