@@ -17,7 +17,7 @@ class DeleteList(Container):
         self.is_excluded = (
             self.is_excluded if check_exclution is None else check_exclution
         )
-        self.set_widgets(["", ""])
+        self.set_widgets(["", "", ""])
         self.window = Window(self, box="EMPTY_VERTICAL", width=80).set_title(
             "Processing Files"
         )
@@ -32,12 +32,12 @@ class DeleteList(Container):
         self.valid += 1
 
     def show_result(self, ui):
-        self.window.set_title("Delete Listing Result")
+        self.window.set_title("Deleting Result")
         self.set_widgets(
             [
                 f"processed {self.processed} files and deleting {self.valid} of them",
                 f"total delete size: {round(self.delete_size / 1024 / 1024, 2)} MB",
-                Button("OK", onclick=lambda: ui.remove(self.window) if ui else None),
+                Button("OK", onclick=lambda _: ui.remove(self.window) if ui else None),
             ]
         )
 

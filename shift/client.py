@@ -31,7 +31,6 @@ class AdbClient:
     def start_server():
         result = subprocess.run(
             ["adb", "start-server"],
-            shell=True,
             stderr=subprocess.PIPE,
         )
         if result.stderr:

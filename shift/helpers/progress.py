@@ -12,7 +12,7 @@ class Progress(Container):
         self.file_transfer = 0
         self.total_files = total_files
         self.files = 0
-        self.set_widgets(["", "", ""])
+        self.set_widgets(["", "", "", ""])
         self.file = File("", "", "", 0, 0, 0)
         self.window = Window(self, box="EMPTY_VERTICAL", width=80).set_title(
             "Transferring Files"
@@ -22,11 +22,12 @@ class Progress(Container):
         self.start_time = time.time()
         self.update_progress()
 
-    def end(self, ui=None):
+    def end(self, ui=None, callback=None):
         self.end_time = time.time()
         speed = round(
             self.total_transfer / 1024 / 1024 / (time.time() - self.start_time), 1
         )
+        callback = ui.remove if ui else callback
         self.window.set_title("Transfer Result")
         self.set_widgets(
             [
@@ -45,7 +46,7 @@ class Progress(Container):
                     f"Time elapsed : {round(time.time() - self.start_time, 1)}s",
                     parent_align=0,
                 ),
-                Button("OK", onclick=ui.stop if ui else None),
+                Button("OK", onclick=lambda _: callback(self.window)),
             ]
         )
 
