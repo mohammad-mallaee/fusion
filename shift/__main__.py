@@ -19,7 +19,7 @@ from shift.storage import Storage
 
 parser = argparse.ArgumentParser(
     prog="shift",
-    description="keep your phone in sync with your desktop",
+    description="keep your phone and computer in sync",
     epilog="I'll be happy to take your comments and feedbacks",
 )
 
@@ -39,9 +39,10 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
     dest_path = os.path.normpath(args.destination)
     args.source = source_path
     args.destination = dest_path
+    args.error = None
 
     if not source_interface.exists(source_path):
-        print("Source Does not exist. Check the paths.")
+        args.error = "Source Does not exist. Check the paths."
         return
 
     source_stats = source_interface.stat(source_path, True)
@@ -53,20 +54,20 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
             if stat.S_ISDIR(dest_stats.mode):
                 args.destination = os.path.join(dest_path, source_stats.name)
             elif not stat.S_ISREG(dest_stats.mode):
-                print("This is not a file or a directory")
+                args.error = "This is not a file or a directory"
         else:
-            print("destination path doesn't exist.")
+            args.error = "destination path doesn't exist."
     elif stat.S_ISDIR(source_stats.mode):
         if dest_interface.exists(dest_path):
             dest_stats = dest_interface.stat(dest_path)
             if stat.S_ISREG(dest_stats.mode):
-                print("You cannot transfer a directory to a file!")
+                args.error = "You cannot transfer a directory to a file!"
             elif not stat.S_ISDIR(dest_stats.mode):
-                print("This is not a file or a directory")
+                args.error = "This is not a file or a directory"
         else:
-            print("destination path doesn't exist")
+            args.error = "destination path doesn't exist"
     else:
-        print("This is not a file or directory")
+        args.error = "This is not a file or directory"
 
 
 if __name__ == "__main__":
@@ -84,10 +85,14 @@ if __name__ == "__main__":
                 device = Device(device_serial, client)
                 command = args.command
                 args.is_file = False
+
                 if command == "pull":
                     process_paths(device, storage, args)
                 elif command == "push":
                     process_paths(storage, device, args)
+                if args.error:
+                    show_message("Path Error", args.error, callback=exit)
+
                 with UserInterface() as ui:
                     try:
                         shift(device, ui, args)
@@ -109,7 +114,7 @@ if __name__ == "__main__":
                     "\n".join(
                         [
                             "There is no device connected",
-                            "You can check the connected devices with `adb devices` command",
+                            "You can check the connected devices using `adb devices` command",
                         ]
                     ),
                 )

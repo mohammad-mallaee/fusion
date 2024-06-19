@@ -53,7 +53,7 @@ class Storage(PathInterface):
         if not file.buffer.closed:
             file.buffer.close()
         file.set_modified_time()
-    
+
     def delete_files(self, file_listing: SyncList):
         for file in file_listing.files:
             try:
