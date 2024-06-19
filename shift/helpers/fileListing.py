@@ -1,4 +1,5 @@
 from pytermgui import Container, boxes, Window, Button
+import os
 
 from shift.helpers.file import File
 from config import config
@@ -37,12 +38,14 @@ class SyncList(Container):
             [
                 f"processed {self.processed} files and transferring {self.valid} of them",
                 f"total transfer size: {round(self.transfer_size / 1024 / 1024, 2)} MB",
-                Button("OK", onclick=lambda _: ui.stop() if ui else None),
+                Button("OK", onclick=lambda _: ui.remove(self.window) if ui else None),
             ]
         )
 
-    def is_excluded(self, path):
-        return path in config["excluded_paths"]
+    def is_excluded(self, path: str):
+        exc_path = path in config["excluded_paths"]
+        hidden = not config["hidden_files"] and os.path.basename(path).startswith(".")
+        return exc_path or hidden
 
     def validate(self, path):
         return True

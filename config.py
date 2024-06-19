@@ -1,5 +1,6 @@
 config = {
     "excluded_paths": [
-        "/sdcard/Android",
-    ]
+        "sdcard/Android",
+    ],
+    "hidden_files": False,
 }
