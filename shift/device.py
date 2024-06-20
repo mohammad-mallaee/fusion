@@ -22,13 +22,18 @@ class Device(PathInterface):
         self.client: AdbClient = client
         self.serial = serial
         self.connection = client.connection
-        self.prepare_sync()
+        self.reset_connection(True)
 
     def open_transport(self):
         self.client.send_command(f"host:transport:{self.serial}")
 
-    def prepare_sync(self):
+    def reset_connection(self, sync=False):
+        self.client.reset_connection()
         self.open_transport()
+        if sync:
+            self.prepare_sync()
+
+    def prepare_sync(self):
         self.client.send_command("sync:")
 
     def send_sync_command(self, command, path):
@@ -54,19 +59,17 @@ class Device(PathInterface):
     def should_delete(self, file: File):
         return not self.exists(file.remote_path)
 
-    def stat(self, path, follow_symlinks=False):
+    def stat(self, path, follow_symlinks=True):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
         mode, size, mtime = struct.unpack("<III", self.client.recv(12))
         if id != STAT:
             raise
         if st.S_ISLNK(mode) and follow_symlinks:
-            self.client.reset_connection()
-            self.open_transport()
+            self.reset_connection()
             self.client.send_shell_command(f'readlink -f "{path}"')
             real_path = self.client.read_string_until_close().split("\n")[0]
-            self.client.reset_connection()
-            self.prepare_sync()
+            self.reset_connection(True)
             return self.stat(real_path)
         return Stat(
             mode=mode,
@@ -79,8 +82,7 @@ class Device(PathInterface):
     def delete_files(self, file_listing: SyncList):
         for file in file_listing.files:
             try:
-                self.client.reset_connection()
-                self.open_transport()
+                self.reset_connection()
                 self.client.send_shell_command(f'rm "{file.remote_path}"')
             except Exception:
                 raise

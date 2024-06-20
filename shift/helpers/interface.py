@@ -6,7 +6,7 @@ class PathInterface:
     def exists(self, path: str) -> bool:
         pass
 
-    def stat(self, path: str) -> Stat:
+    def stat(self, path: str, follow_symlinks=True) -> Stat:
         pass
 
     def get_file(self, data: str | Stat) -> File:
