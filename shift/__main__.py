@@ -37,6 +37,12 @@ args = parser.parse_args()
 def process_paths(source_interface: PathInterface, dest_interface: PathInterface, args):
     source_path = os.path.normpath(args.source)
     dest_path = os.path.normpath(args.destination)
+
+    if args.command == PULL:
+        source_path = source_path.lstrip("/")
+    elif args.command == PUSH:
+        dest_path = "sdcard" if dest_path == "." else dest_path.lstrip("/")
+
     args.source = source_path
     args.destination = dest_path
     args.error = None
