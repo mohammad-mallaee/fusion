@@ -7,6 +7,7 @@ from shift.exceptions import AdbError
 from shift.storage import Storage
 from shift.helpers.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
 from shift.helpers.fileListing import SyncList
+from shift.helpers.deleteListing import DeleteList
 from shift.helpers.file import File
 from shift.helpers.stat import Stat
 from shift.helpers.progress import Progress
@@ -79,11 +80,13 @@ class Device(PathInterface):
             name=os.path.basename(path),
         )
 
-    def delete_files(self, file_listing: SyncList):
-        for file in file_listing.files:
+    def delete_files(self, delete_listing: DeleteList):
+        for file in delete_listing.files:
             try:
                 self.reset_connection()
                 self.client.send_shell_command(f'rm "{file.remote_path}"')
+                delete_listing.deleted += 1
+                delete_listing.delete_size += file.size
             except Exception:
                 raise
 
@@ -104,6 +107,7 @@ class Device(PathInterface):
     def list_files(self, path, file_listing: SyncList) -> None:
         def _ls(client, path):
             self.send_sync_command("LIST", path)
+            file_listing.current_dir = path
             dirs = []
             while True:
                 id = client.read_string(4)

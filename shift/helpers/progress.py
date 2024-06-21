@@ -1,20 +1,25 @@
-from pytermgui import Container, Label, boxes, Window, Button
+from pytermgui import boxes, Window, Button
 import time
 from shift.helpers.file import File
-from shift.helpers.utils import truncate_middle
+from shift.helpers.utils import truncate_middle, get_size, get_percent
+from shift.ui.container import AlignedContainer
+from shift.ui.progress_bar import ProgresBar
 
 
-class Progress(Container):
-    def __init__(self, total_size, total_files) -> None:
-        super().__init__(box=boxes.Box(["     ", "  x  ", "     "]))
+class Progress(AlignedContainer):
+    def __init__(self, total_size, total_files, local=False) -> None:
+        super().__init__(box=boxes.Box(["", " x ", ""]))
         self.total_size = total_size
         self.total_transfer = 0
         self.file_transfer = 0
         self.total_files = total_files
         self.files = 0
-        self.set_widgets(["", "", "", ""])
         self.file = File("", "", "", 0, 0, 0)
-        self.window = Window(self, box="EMPTY_VERTICAL", width=80).set_title(
+        self.local = local
+
+        self.progress_bar = ProgresBar()
+        self.set_widgets(["", "", "", "", "", ""])
+        self.window = Window(self, box=boxes.Box(["─", "x", "─"]), width=80).set_title(
             "Transferring Files"
         )
 
@@ -24,29 +29,24 @@ class Progress(Container):
 
     def end(self, ui=None, callback=None):
         self.end_time = time.time()
-        speed = round(
-            self.total_transfer / 1024 / 1024 / (time.time() - self.start_time), 1
-        )
         callback = ui.remove if ui else callback
         self.window.set_title("Transfer Result")
+        elapsed_time = time.time() - self.start_time
+        err_msg = (
+            "There was no error during transfer"
+            if self.total_transfer == self.total_size
+            else f"[lightred]There was error during transfer. {self.files} / {self.total_files} of files were transferred"
+        )
         self.set_widgets(
             [
-                Label(
-                    (
-                        f"transffered {self.files} / {self.total_files} files and "
-                        f"{round(self.total_transfer / 1024 / 1024, 1)}MB / {round(self.total_size / 1024 / 1024, 1)}MB"
-                    ),
-                    parent_align=0,
+                f"Transffered {self.files} file(s) with size of {get_size(self.total_transfer)}",
+                (
+                    f"Elapsed time was {round(elapsed_time, 1)} seconds and "
+                    f'average speed was {get_size(self.total_transfer / elapsed_time, " ")}/s'
                 ),
-                Label(
-                    f"Avg. speed : {speed} MB/s",
-                    parent_align=0,
-                ),
-                Label(
-                    f"Time elapsed : {round(time.time() - self.start_time, 1)}s",
-                    parent_align=0,
-                ),
-                Button("OK", onclick=lambda _: callback(self.window)),
+                err_msg,
+                "",
+                Button("OK", onclick=lambda _: callback(self.window), self_align=1),
             ]
         )
 
@@ -67,28 +67,24 @@ class Progress(Container):
         self.update_progress()
 
     def update_progress(self):
-        speed = round(
-            self.total_transfer / 1024 / 1024 / (time.time() - self.start_time), 1
-        )
+        self.progress_bar.update(get_percent(self.total_transfer, self.total_size))
+
+        speed = get_size(self.total_transfer / (time.time() - self.start_time), " ")
+        files_progress = f"{self.files} / {self.total_files}"
+        size_progress = f'{get_size(self.total_transfer, " "):>8} / {get_size(self.total_size, " "):<8}'
+        speed_prgress = f"{speed}/s"
+        size_width = self.width - len(files_progress) - len(speed_prgress) - 6
+        file_progress = f"\\[{get_percent(self.file_transfer, self.file.size):>3}%]"
+        file_size_progress = f'{get_size(self.file_transfer, " "):>8} / {get_size(self.file.size, " "):<8}'
+        file_path = self.file.local_path if self.local else self.file.remote_path
+
         self.set_widgets(
             [
-                Label(
-                    (
-                        f"transffered {self.files} / {self.total_files} files and "
-                        f"{round(self.total_transfer / 1024 / 1024, 1)}MB / {round(self.total_size / 1024 / 1024, 1)}MB"
-                    ),
-                    parent_align=0,
-                ),
-                Label(
-                    f"transferring {truncate_middle(self.file.name, 40)}",
-                    parent_align=0,
-                ),
-                Label(
-                    (
-                        f"{round(self.file_transfer / 1024 / 1024, 1)}MB / {round(self.file.size / 1024 / 1024, 1)}MB"
-                        f" avg. speed : {speed} MB/s"
-                    ),
-                    parent_align=0,
-                ),
+                f"{files_progress} {size_progress:^{size_width}} {speed_prgress}",
+                "",
+                f"{file_progress} {file_size_progress}",
+                f"{truncate_middle(file_path, self.width - 2)}",
+                "",
+                self.progress_bar,
             ]
         )

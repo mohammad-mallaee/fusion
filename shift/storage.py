@@ -1,5 +1,6 @@
 import os
 from shift.helpers.fileListing import SyncList
+from shift.helpers.deleteListing import DeleteList
 from shift.helpers.file import File
 from shift.helpers.stat import Stat
 from shift.helpers.interface import PathInterface
@@ -54,10 +55,12 @@ class Storage(PathInterface):
             file.buffer.close()
         file.set_modified_time()
 
-    def delete_files(self, file_listing: SyncList):
-        for file in file_listing.files:
+    def delete_files(self, delete_listing: DeleteList):
+        for file in delete_listing.files:
             try:
                 os.remove(file.local_path)
+                delete_listing.deleted += 1
+                delete_listing.delete_size += file.size
             except Exception:
                 pass
 

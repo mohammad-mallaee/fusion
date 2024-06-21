@@ -1,30 +1,46 @@
-from pytermgui import Container, boxes, Window, Button
+from pytermgui import boxes, Window, Button
 
 from shift.helpers.file import File
+from shift.helpers.utils import truncate_first, get_size
+from shift.ui.container import AlignedContainer
 from config import config
 
 
-class DeleteList(Container):
-    def __init__(self, convert_path, validate=None, check_exclution=None) -> None:
-        super().__init__(box=boxes.Box(["     ", "  x  ", "     "]))
+class DeleteList(AlignedContainer):
+    def __init__(
+        self, convert_path, validate=None, check_exclution=None, local=False
+    ) -> None:
+        super().__init__(box=boxes.Box(["", " x ", ""]))
         self.processed: int = 0
         self.valid: int = 0
         self.delete_size: int = 0
         self.total_size: int = 0
+        self.deleted = 0
         self.files: list[File] = []
         self.validate = self.validate if validate is None else validate
         self.convert_path = convert_path
         self.is_excluded = (
             self.is_excluded if check_exclution is None else check_exclution
         )
-        self.set_widgets(["", "", ""])
-        self.window = Window(self, box="EMPTY_VERTICAL", width=80).set_title(
+        self.local = local
+        self.set_widgets(["", "", "", ""])
+        self.window = Window(self, box=boxes.Box(["─", "x", "─"]), width=80).set_title(
             "Processing Files"
         )
 
     def append_process(self, file: File):
         self.processed += 1
         self.total_size += file.size
+
+    def get_last_files(self, max_length=60, count=2):
+        last_files = self.files[-count:]
+        last_file_names = [
+            f.local_path if self.local else f.remote_path for f in last_files
+        ]
+        last_files_str = [
+            "[gray]" + truncate_first(name, max_length) for name in last_file_names
+        ]
+        return [""] * (count - len(last_files_str)) + last_files_str
 
     def append(self, file: File):
         self.files.append(file)
@@ -35,9 +51,14 @@ class DeleteList(Container):
         self.window.set_title("Deleting Result")
         self.set_widgets(
             [
-                f"processed {self.processed} files and deleting {self.valid} of them",
-                f"total delete size: {round(self.delete_size / 1024 / 1024, 2)} MB",
-                Button("OK", onclick=lambda _: ui.remove(self.window) if ui else None),
+                f"Processed {self.processed} files and deleted {self.deleted} of them",
+                f'Total delete size: {get_size(self.delete_size, " ")}',
+                "",
+                Button(
+                    "OK",
+                    onclick=lambda _: ui.remove(self.window) if ui else None,
+                    self_align=1,
+                ),
             ]
         )
 
@@ -50,7 +71,7 @@ class DeleteList(Container):
     def update_progress(self):
         self.set_widgets(
             [
-                f"processed {self.processed} files and deleting {self.valid} of them",
-                f"total delete size: {round(self.delete_size / 1024 / 1024, 2)} MB",
+                f"{self.valid} / {self.processed} -- {get_size(self.delete_size)}",
             ]
+            + self.get_last_files(self.width - 2, 3)
         )

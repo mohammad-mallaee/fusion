@@ -36,6 +36,7 @@ def _shift_directory(device, storage, args, ui):
     command = args.command
     destination = args.destination
 
+    local = command == PUSH
     source_interface = device if command == PULL else storage
     dest_interface = storage if command == PULL else device
 
@@ -46,8 +47,7 @@ def _shift_directory(device, storage, args, ui):
         return path.replace(destination, source)
 
     file_listing = SyncList(
-        get_dest_path,
-        None if args.force else dest_interface.should_sync,
+        get_dest_path, None if args.force else dest_interface.should_sync, local=local
     )
     ui.show(file_listing.window)
     source_interface.list_files(source, file_listing)
@@ -61,7 +61,7 @@ def _shift_directory(device, storage, args, ui):
         if delete_listing:
             ui.show(delete_listing.window)
 
-    progress = Progress(file_listing.transfer_size, file_listing.valid)
+    progress = Progress(file_listing.transfer_size, file_listing.valid, local)
     ui.replace_current(progress.window)
     progress.start()
     if command == PULL:
@@ -70,7 +70,7 @@ def _shift_directory(device, storage, args, ui):
         device.push_files(progress, *file_listing.files)
     progress.end(callback=progress_callback)
     if args.delete:
-        delete_listing = DeleteList(get_source_path, device.should_delete)
+        delete_listing = DeleteList(get_source_path, device.should_delete, local=local)
         dest_interface.list_files(destination, delete_listing)
         dest_interface.delete_files(delete_listing)
         delete_listing.show_result(ui)
