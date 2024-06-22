@@ -25,7 +25,7 @@ class SyncList(AlignedContainer):
         self.is_excluded = (
             self.is_excluded if check_exclution is None else check_exclution
         )
-        self.set_widgets(["", "", "", "", ""])
+        self.set_widgets(["", "", "", "", "", ""])
         self.window = Window(self, box=boxes.Box(["─", "x", "─"]), width=80).set_title(
             "Processing Files"
         )
@@ -60,13 +60,13 @@ class SyncList(AlignedContainer):
 
     def show_result(self, ui):
         self.window.set_title("File Listing Result")
-        progress_str = f"{self.valid}/{self.processed} -- {get_size(self.transfer_size)} / {get_size(self.total_size)}"
-        progress_width = len(progress_str)
-        dir_width = self.width - progress_width - 3
-        dir_str = f"Proccessed {self.processed_dirs} directories"
+        processed_str = f"Proccessed {self.processed_dirs} directories and {self.processed} files ({get_size(self.total_size)})"
+        transferr_str = f"{self.valid} of them will be transferred ({get_size(self.transfer_size)})"
+
         self.set_widgets(
             [
-                f"{dir_str:<{dir_width}} {progress_str:>{progress_width}}",
+                processed_str,
+                transferr_str
             ]
             + self.get_last_files(self.width - 2, 2)
             + [
@@ -99,5 +99,5 @@ class SyncList(AlignedContainer):
                 f"{dir_str:<{dir_width}} {progress_str:>{progress_width}}",
                 "",
             ]
-            + self.get_last_files(self.width - 2, 3)
+            + self.get_last_files(self.width - 2, 4)
         )
