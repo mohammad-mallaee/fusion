@@ -16,17 +16,26 @@ def shift(device: Device, ui: UserInterface, args):
         raise Exception("Unknown Command !!")
 
     source = args.source
+    dest = args.destination
     storage = Storage()
 
     if args.is_file:
         if command == PULL:
-            progress = Progress(source.size, 1)
             file = device.get_file(source)
+            file.local_path = dest
+            progress = Progress(file.size, 1)
+            progress.start()
+            ui.show(progress.window)
             device.pull_files(storage, progress, file)
+            progress.end(ui)
         elif command == PUSH:
-            progress = Progress(source.size, 1)
             file = storage.get_file(source)
+            file.remote_path = dest
+            progress = Progress(file.size, 1)
+            progress.start()
+            ui.show(progress.window)
             device.push_files(progress, file)
+            progress.end(ui)
     else:
         return _shift_directory(device, storage, args, ui)
 

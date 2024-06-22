@@ -35,7 +35,7 @@ class File:
         return open(self.local_path, "rb")
 
     def create(self):
-        os.makedirs(os.path.dirname(self.local_path), exist_ok=True)
+        os.makedirs(os.path.dirname(self.local_path) or ".", exist_ok=True)
         flags = os.O_CREAT | os.O_WRONLY | os.O_TRUNC
         os.open(self.local_path, flags)
 
