@@ -9,6 +9,7 @@ from shift.helpers.interface import PathInterface
 class Storage(PathInterface):
     def list_files(self, path, file_listing: SyncList) -> None:
         for root, dirs, file_paths in os.walk(path):
+            file_listing.current_dir = root
             dirs[:] = [
                 d for d in dirs if not file_listing.is_excluded(os.path.join(root, d))
             ]

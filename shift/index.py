@@ -70,7 +70,9 @@ def _shift_directory(device, storage, args, ui):
         device.push_files(progress, *file_listing.files)
     progress.end(callback=progress_callback)
     if args.delete:
-        delete_listing = DeleteList(get_source_path, device.should_delete, local=local)
+        delete_listing = DeleteList(
+            get_source_path, source_interface.should_delete, local=local
+        )
         dest_interface.list_files(destination, delete_listing)
         dest_interface.delete_files(delete_listing)
         delete_listing.show_result(ui)
