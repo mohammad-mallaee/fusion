@@ -1,5 +1,6 @@
 import subprocess
 import socket
+import re
 
 from shift.exceptions import AdbNotFound
 from shift.helpers.utils import write_log
@@ -80,15 +81,16 @@ class AdbClient:
         return self.read_string(msg_length)
 
     def list_devices(self) -> tuple[list[str], list[str]]:
-        self.send_command("host:devices")
+        self.send_command("host:devices-l")
         output = self.read_string_block()
-        devices = [device.split("\t") for device in output.split("\n")[:-1]]
-        online_devices = [
-            device[0]
-            for device in devices
-            if device[1] == "device" or device[1] == "recovery"
+        pattern = r"^(\S+)\s+(\S+).*\bmodel:(\S+)"
+        devices = [
+            re.search(pattern, device).groups() for device in output.split("\n")[:-1]
         ]
-        offiline_devices = [device[0] for device in devices if device[1] == "offline"]
+        online_devices = list(
+            filter(lambda d: d[1] == "device" or d[1] == "recovery", devices)
+        )
+        offiline_devices = list(filter(lambda d: d[1] == "offline", devices))
         self.reset_connection()
         return online_devices, offiline_devices
 

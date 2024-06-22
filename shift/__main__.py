@@ -108,12 +108,12 @@ if __name__ == "__main__":
 
             if len(online_devices) > 1:
                 PromptList(
-                    online_devices,
+                    [f"{d[2]} ({d[0]})" for d in online_devices],
                     "Select a device",
-                    lambda index: start_transfer(online_devices[index]),
+                    lambda index: start_transfer(online_devices[index][0]),
                 )
             elif len(online_devices) == 1:
-                start_transfer(online_devices[0])
+                start_transfer(online_devices[0][0])
             else:
                 show_message(
                     "Connection Error",
