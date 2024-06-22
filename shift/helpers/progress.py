@@ -39,7 +39,7 @@ class Progress(AlignedContainer):
         )
         self.set_widgets(
             [
-                f"Transffered {self.files} file(s) with size of {get_size(self.total_transfer)}",
+                f"Transferred {self.files} file(s) with size of {get_size(self.total_transfer)}",
                 (
                     f"Elapsed time was {round(elapsed_time, 1)} seconds and "
                     f'average speed was {get_size(self.total_transfer / elapsed_time, " ")}/s'

@@ -48,32 +48,41 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
     args.error = None
 
     if not source_interface.exists(source_path):
-        args.error = "Source Does not exist. Check the paths."
+        args.error = "source path does not exist:" + "\n[yellow]" + source_path
         return
 
     source_stats = source_interface.stat(source_path, True)
     if stat.S_ISREG(source_stats.mode):
         args.is_file = True
-        args.source = source_interface.get_file(source_stats)
         if dest_interface.exists(dest_path):
             dest_stats = dest_interface.stat(dest_path)
             if stat.S_ISDIR(dest_stats.mode):
                 args.destination = os.path.join(dest_path, source_stats.name)
             elif not stat.S_ISREG(dest_stats.mode):
-                args.error = "This is not a file or a directory"
+                args.error = (
+                    "destination path is not a file nor a directory:"
+                    + "\n[yellow]"
+                    + dest_path
+                )
         else:
-            args.error = "destination path doesn't exist."
+            args.error = "destination path does not exist:" + "\n[yellow]" + dest_path
     elif stat.S_ISDIR(source_stats.mode):
         if dest_interface.exists(dest_path):
             dest_stats = dest_interface.stat(dest_path)
             if stat.S_ISREG(dest_stats.mode):
                 args.error = "You cannot transfer a directory to a file!"
             elif not stat.S_ISDIR(dest_stats.mode):
-                args.error = "This is not a file or a directory"
+                args.error = (
+                    "destination path is not a file nor a directory:"
+                    + "\n[yellow]"
+                    + dest_path
+                )
         else:
-            args.error = "destination path doesn't exist"
+            args.error = "destination path does not exist:" + "\n[yellow]" + dest_path
     else:
-        args.error = "This is not a file or directory"
+        args.error = (
+            "source path is not a file nor a directory:" + "\n[yellow]" + source_path
+        )
 
 
 if __name__ == "__main__":
