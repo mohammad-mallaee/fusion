@@ -1,9 +1,10 @@
-from pytermgui import boxes, Window, Button
+from pytermgui import boxes, Button
 import os
 
 from shift.helpers.file import File
 from shift.ui.container import AlignedContainer
 from shift.helpers.utils import truncate_first, get_size
+from shift.ui.keyboard_window import KeyboardWindow
 from config import config
 
 
@@ -26,8 +27,10 @@ class SyncList(AlignedContainer):
             self.is_excluded if check_exclution is None else check_exclution
         )
         self.set_widgets(["", "", "", "", "", ""])
-        self.window = Window(self, box=boxes.Box(["─", "x", "─"]), width=80).set_title(
-            "Processing Files"
+        self.window = (
+            KeyboardWindow(self, handle_key=self.handle_key, box="ROUNDED", width=80)
+            .center()
+            .set_title("Processing Files")
         )
 
     @property
@@ -58,22 +61,26 @@ class SyncList(AlignedContainer):
         ]
         return [""] * (count - len(last_files_str)) + last_files_str
 
-    def show_result(self, ui):
+    def show_result(self, callback=None):
         self.window.set_title("File Listing Result")
         processed_str = f"Proccessed {self.processed_dirs} directories and {self.processed} files ({get_size(self.total_size)})"
-        transferr_str = f"{self.valid} of them will be transferred ({get_size(self.transfer_size)})"
+        transferr_str = (
+            f"{self.valid} of them will be transferred ({get_size(self.transfer_size)})"
+        )
+
+        def handle_click(_):
+            self.window.close()
+            if callback:
+                callback()
 
         self.set_widgets(
-            [
-                processed_str,
-                transferr_str
-            ]
+            [processed_str, transferr_str]
             + self.get_last_files(self.width - 2, 2)
             + [
                 "",
                 Button(
                     "OK",
-                    onclick=lambda _: ui.remove(self.window),
+                    onclick=handle_click,
                     self_align=1,
                 ),
             ]

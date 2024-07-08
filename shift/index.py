@@ -25,22 +25,22 @@ def shift(device: Device, ui: UserInterface, args):
             file.local_path = dest
             progress = Progress(file.size, 1)
             progress.start()
-            ui.show(progress.window)
+            ui.add(progress.window)
             device.pull_files(storage, progress, file)
-            progress.end(ui)
+            progress.end()
         elif command == PUSH:
             file = storage.get_file(source)
             file.remote_path = dest
             progress = Progress(file.size, 1)
             progress.start()
-            ui.show(progress.window)
+            ui.add(progress.window)
             device.push_files(progress, file)
-            progress.end(ui)
+            progress.end()
     else:
         return _shift_directory(device, storage, args, ui)
 
 
-def _shift_directory(device, storage, args, ui):
+def _shift_directory(device: Device, storage: Storage, args, ui: UserInterface):
     source = args.source
     command = args.command
     destination = args.destination
@@ -55,33 +55,37 @@ def _shift_directory(device, storage, args, ui):
     def get_source_path(path):
         return path.replace(destination, source)
 
+    def end():
+        device.client.__exit__()
+        ui.stop()
+
     file_listing = SyncList(
         get_dest_path, None if args.force else dest_interface.should_sync, local=local
     )
-    ui.show(file_listing.window)
+    ui.add(file_listing.window)
     source_interface.list_files(source, file_listing)
+    file_listing.window.close()
     if args.dryrun:
-        return file_listing.show_result(ui)
+        file_listing.show_result(end)
 
-    delete_listing = None
-
-    def progress_callback(x):
-        ui.remove(x)
-        if delete_listing:
-            ui.show(delete_listing.window)
+    def progress_callback():
+        if args.delete:
+            device.reset_connection(True)
+            delete_listing = DeleteList(
+                get_source_path, source_interface.should_delete, local=local
+            )
+            ui.add(delete_listing.window)
+            dest_interface.list_files(destination, delete_listing)
+            dest_interface.delete_files(delete_listing)
+            delete_listing.show_result(end)
+        else:
+            end()
 
     progress = Progress(file_listing.transfer_size, file_listing.valid, local)
-    ui.replace_current(progress.window)
+    ui.add(progress.window)
     progress.start()
     if command == PULL:
         device.pull_files(storage, progress, *file_listing.files)
     elif command == PUSH:
         device.push_files(progress, *file_listing.files)
-    progress.end(callback=progress_callback)
-    if args.delete:
-        delete_listing = DeleteList(
-            get_source_path, source_interface.should_delete, local=local
-        )
-        dest_interface.list_files(destination, delete_listing)
-        dest_interface.delete_files(delete_listing)
-        delete_listing.show_result(ui)
+    progress.end(progress_callback)

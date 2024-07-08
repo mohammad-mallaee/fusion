@@ -24,8 +24,8 @@ class DeleteList(AlignedContainer):
         )
         self.local = local
         self.set_widgets(["", "", "", ""])
-        self.window = Window(self, box=boxes.Box(["─", "x", "─"]), width=80).set_title(
-            "Processing Files"
+        self.window = (
+            Window(self, box="ROUNDED", width=80).center().set_title("Processing Files")
         )
 
     def append_process(self, file: File):
@@ -47,8 +47,14 @@ class DeleteList(AlignedContainer):
         self.delete_size += file.size
         self.valid += 1
 
-    def show_result(self, ui):
+    def show_result(self, callback=None):
         self.window.set_title("Deleting Result")
+
+        def handle_click(_):
+            self.window.close()
+            if callback:
+                callback()
+
         self.set_widgets(
             [
                 f"Processed {self.processed} files and deleted {self.deleted} of them",
@@ -56,7 +62,7 @@ class DeleteList(AlignedContainer):
                 "",
                 Button(
                     "OK",
-                    onclick=lambda _: ui.remove(self.window) if ui else None,
+                    onclick=handle_click,
                     self_align=1,
                 ),
             ]

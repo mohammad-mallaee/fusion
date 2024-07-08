@@ -19,18 +19,25 @@ class Progress(AlignedContainer):
 
         self.progress_bar = ProgresBar()
         self.set_widgets(["", "", "", "", "", ""])
-        self.window = Window(self, box=boxes.Box(["─", "x", "─"]), width=80).set_title(
-            "Transferring Files"
+        self.window = (
+            Window(self, box="ROUNDED", width=80)
+            .center()
+            .set_title("Transferring Files")
         )
 
     def start(self):
         self.start_time = time.time()
         self.update_progress()
 
-    def end(self, ui=None, callback=None):
+    def end(self, callback=None):
         self.end_time = time.time()
-        callback = ui.remove if ui else callback
         self.window.set_title("Transfer Result")
+
+        def handle_click(_):
+            self.window.close()
+            if callback:
+                callback()
+
         elapsed_time = time.time() - self.start_time
         err_msg = (
             "There was no error during transfer"
@@ -46,7 +53,7 @@ class Progress(AlignedContainer):
                 ),
                 err_msg,
                 "",
-                Button("OK", onclick=lambda _: callback(self.window), self_align=1),
+                Button("OK", onclick=handle_click, self_align=1),
             ]
         )
 
