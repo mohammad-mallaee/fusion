@@ -1,22 +1,24 @@
-from pytermgui import boxes, keys, WindowManager
+from pytermgui import boxes, keys
 from shift.ui.keyboard_window import KeyboardWindow
 from shift.ui.container import AlignedContainer
 
 
 class PromptList(AlignedContainer):
-    def __init__(self, choices: list, title=None, callback: callable = None) -> None:
+    def __init__(
+        self, ui, choices: list, title=None, callback: callable = None
+    ) -> None:
         super().__init__(box=boxes.Box(["     ", "x", "     "]))
         self.choices = choices
         self.set_widgets([""] * len(choices))
         self.choice_index = 0
         self.set_choice_list()
         self.callback = callback
-        self.window = KeyboardWindow(
-            self, handle_key=self.handle_key, box="EMPTY_VERTICAL", width=80
-        ).set_title(title)
-        with WindowManager() as manager:
-            self.mananger = manager
-            manager.add(self.window)
+        self.window = (
+            KeyboardWindow(self, handle_key=self.handle_key, box="ROUNDED", width=80)
+            .set_title(title)
+            .center()
+        )
+        ui.add(self.window)
 
     def set_choice_list(self):
         choices_text = ["> " + choice for choice in self.choices]
@@ -31,6 +33,7 @@ class PromptList(AlignedContainer):
             self.choice_index += 1
             self.set_choice_list()
             return True
+
         if key == keys.UP and self.choice_index > 0:
             self.choice_index -= 1
             self.set_choice_list()
@@ -39,5 +42,6 @@ class PromptList(AlignedContainer):
         if key == keys.RETURN or key == keys.ENTER:
             self.window.close()
             self.callback(self.choice_index)
+            return True
 
         return False

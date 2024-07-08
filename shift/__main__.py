@@ -2,6 +2,7 @@ import argparse
 import os
 import stat
 import traceback
+import sys
 
 from shift.client import AdbClient
 from shift.device import Device
@@ -90,46 +91,54 @@ if __name__ == "__main__":
         c = AdbClient().__enter__()
         c.__exit__()
     except FileNotFoundError:
-        show_message("Connection Error", "Couldn't find adb")
+        show_message("Connection Error", "Couldn't find adb", stop=True, wait=0.5)
     else:
-        with AdbClient() as client:
-            storage = Storage()
-            online_devices, offline_devices = client.list_devices()
+        try:
+            with AdbClient() as client, UserInterface() as ui:
+                storage = Storage()
+                online_devices, offline_devices = client.list_devices()
 
-            def start_transfer(device_serial):
-                device = Device(device_serial, client)
-                command = args.command
-                args.is_file = False
+                def start_transfer(device_serial):
+                    device = Device(device_serial, client)
+                    command = args.command
+                    args.is_file = False
 
-                if command == "pull":
-                    process_paths(device, storage, args)
-                elif command == "push":
-                    process_paths(storage, device, args)
-                if args.error:
-                    show_message("Path Error", args.error, callback=exit)
+                    if command == "pull":
+                        process_paths(device, storage, args)
+                    elif command == "push":
+                        process_paths(storage, device, args)
+                    if args.error:
+                        show_message("Path Error", args.error, wait=0.5, manager=ui)
 
-                with UserInterface() as ui:
-                    try:
-                        shift(device, ui, args)
-                    except Exception as e:
-                        write_log("ERROR", traceback.format_exc())
-                        show_message("Unexpected Error", str(e), manager=ui)
+                    shift(device, ui, args)
 
-            if len(online_devices) > 1:
-                PromptList(
-                    [f"{d[2]} ({d[0]})" for d in online_devices],
-                    "Select a device",
-                    lambda index: start_transfer(online_devices[index][0]),
-                )
-            elif len(online_devices) == 1:
-                start_transfer(online_devices[0][0])
-            else:
-                show_message(
-                    "Connection Error",
-                    "\n".join(
-                        [
-                            "There is no device connected",
-                            "You can check the connected devices using `adb devices` command",
-                        ]
-                    ),
-                )
+                if len(online_devices) > 1:
+                    PromptList(
+                        ui,
+                        [f"{d[2]} ({d[0]})" for d in online_devices],
+                        "Select a device",
+                        lambda index: start_transfer(online_devices[index][0]),
+                    )
+                elif len(online_devices) == 1:
+                    start_transfer(online_devices[0][0])
+                else:
+                    show_message(
+                        "Connection Error",
+                        "\n".join(
+                            [
+                                "There is no device connected",
+                                "You can check the connected devices using `adb devices` command",
+                            ]
+                        ),
+                        manager=ui,
+                        stop=True,
+                        wait=0.5,
+                    )
+        except KeyboardInterrupt:
+            write_log("DEBUG", "Exiting ...")
+            client.__exit__()
+            ui.stop()
+            sys.exit(0)
+        except Exception as e:
+            write_log("ERROR", traceback.format_exc())
+            show_message("Unexpected Error", str(e), manager=ui)
