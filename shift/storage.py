@@ -26,9 +26,9 @@ class Storage(PathInterface):
                     int(file_stats.st_mtime),
                     file_stats.st_mode,
                 )
-                file_listing.append_process(file)
                 if file_listing.validate(file):
                     file_listing.append(file)
+                file_listing.append_process(file)
             file_listing.update_progress()
 
     def should_sync(self, file: File):

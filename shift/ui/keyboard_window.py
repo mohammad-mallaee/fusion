@@ -1,8 +1,7 @@
-from pytermgui import Window, Container
-from typing import Any
+from pytermgui import Window, Widget
 
 
 class KeyboardWindow(Window):
-    def __init__(self, *widgets: Any, handle_key: Container, **attrs) -> None:
+    def __init__(self, *widgets: list[Widget], handle_key, **attrs) -> None:
         super().__init__(*widgets, **attrs)
         self.handle_key = handle_key
