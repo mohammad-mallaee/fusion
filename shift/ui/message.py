@@ -7,18 +7,18 @@ def show_message(
     title,
     message,
     button_label="OK",
-    manager: UserInterface | WindowManager = None,
+    ui: UserInterface = None,
     callback: callable = None,
     wait=0,
     stop=False,
 ):
-    manager = manager if manager else WindowManager()
+    ui = ui if ui else WindowManager()
 
     def on_click(_):
         window.close()
         sleep(wait)
         if stop:
-            manager.stop()
+            ui.stop()
         elif callback:
             callback()
 
@@ -27,6 +27,6 @@ def show_message(
         message, "", button, box=boxes.Box(["     ", "  x  ", "     "])
     )
     window = Window(container, box="ROUNDED", width=80).set_title(title).center()
-    manager.add(window)
-    if not manager._is_running:
-        manager.run()
+    ui.show(window)
+    if not ui._is_running:
+        ui.run()

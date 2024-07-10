@@ -18,7 +18,7 @@ class PromptList(AlignedContainer):
             .set_title(title)
             .center()
         )
-        ui.add(self.window)
+        ui.show(self.window)
 
     def set_choice_list(self):
         choices_text = ["> " + choice for choice in self.choices]
