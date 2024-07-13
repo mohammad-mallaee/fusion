@@ -22,31 +22,33 @@ def shift(device: Device, storage: Storage, ui: UserInterface, args):
     source = args.source
     dest = args.destination
 
-    if args.is_file:
-        if command == PULL:
-            file = device.get_file(source)
-            file.local_path = dest
-            progress = Progress(file.size, 1)
-            progress.start()
-            ui.show(progress.window)
-            device.pull_files(storage, progress, file)
-            progress.end()
-        elif command == PUSH:
-            file = storage.get_file(source)
-            file.remote_path = dest
-            progress = Progress(file.size, 1)
-            progress.start()
-            ui.show(progress.window)
-            device.push_files(progress, file)
-            progress.end()
-    else:
-        try:
+    try:
+        if args.is_file:
+            if command == PULL:
+                file = device.get_file(source)
+                file.local_path = dest
+                progress = Progress(file.size, 1)
+                progress.start()
+                ui.show(progress.window)
+                device.pull_files(storage, progress, file)
+                progress.end()
+            elif command == PUSH:
+                file = storage.get_file(source)
+                file.remote_path = dest
+                progress = Progress(file.size, 1)
+                progress.start()
+                ui.show(progress.window)
+                device.push_files(progress, file)
+                progress.end()
+        else:
             return _shift_directory(device, storage, args, ui)
-        except Exception as e:
-            sleep(0.2)
-            if not ui.exit_event.is_set():
-                write_log("ERROR", "".join(traceback.format_exception(e)))
-                show_message("Error in Shift", str(e), ui=ui, stop=True, wait=0.5)
+    except Exception as e:
+        sleep(0.2)
+        write_log(
+            f"ERROR {ui.exit_event.is_set()}", "".join(traceback.format_exception(e))
+        )
+        if not ui.exit_event.is_set():
+            show_message("Unexpected Error", str(e), ui=ui, stop=True, wait=0.5)
 
 
 def _shift_directory(device: Device, storage: Storage, args, ui: UserInterface):

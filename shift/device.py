@@ -175,10 +175,7 @@ class Device(PathInterface):
 
     def push_files(self, progress: Progress, *files: File):
         for file in files:
-            try:
-                self._push_file(progress, file)
-            except Exception as e:
-                print("there was an error:", e)
+            self._push_file(progress, file)
 
     def _pull_file(self, storage: Storage, progress: Progress, file: File):
         progress.start_file(file)
@@ -209,9 +206,11 @@ class Device(PathInterface):
             else:
                 raise AdbError("Invalid Sync Status", status)
 
-    def pull_files(self, storage: Storage, progress: Progress, *files):
+    def pull_files(self, storage: Storage, progress: Progress, *files: File):
         for file in files:
             try:
                 self._pull_file(storage, progress, file)
             except Exception as e:
-                print("there was an error:", e)
+                if not file.buffer.closed:
+                    file.buffer.close()
+                raise e
