@@ -1,3 +1,6 @@
+import os
+
+
 def truncate_middle(text, max_length):
     if len(text) > max_length:
         return text[: (max_length - 3) // 2] + "..." + text[-(max_length - 3) // 2 :]
@@ -8,6 +11,18 @@ def truncate_first(text, max_length):
     return (
         text if len(text) <= max_length else f"...{text[len(text) - max_length + 3:]}"
     )
+
+
+def can_creat_directory(path: str):
+    parts = path.split(os.path.sep)
+    for i in range(1, len(parts) + 1):
+        p = os.path.join(*parts[:i])
+        if os.path.exists(p):
+            if os.path.isfile(p):
+                return False
+        else:
+            break
+    return True
 
 
 def write_log(log_level, message):
