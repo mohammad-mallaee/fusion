@@ -1,6 +1,5 @@
 from shift.ui import UserInterface
-from pytermgui import Window, WindowManager, Container, Button, boxes
-from time import sleep
+from pytermgui import Window, Container, Button, boxes
 
 
 def show_message(
@@ -9,16 +8,14 @@ def show_message(
     button_label="OK",
     ui: UserInterface = None,
     callback: callable = None,
-    wait=0,
+    wait=0.5,
     stop=False,
 ):
-    ui = ui if ui else WindowManager()
+    ui = ui if ui else UserInterface()
 
     def on_click(_):
-        window.close()
-        sleep(wait)
         if stop:
-            ui.stop()
+            ui.animate_stop(wait)
         elif callback:
             callback()
 

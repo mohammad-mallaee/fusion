@@ -40,7 +40,6 @@ class PromptList(AlignedContainer):
             return True
 
         if key == keys.RETURN or key == keys.ENTER:
-            self.window.close()
             self.callback(self.choice_index)
             return True
 

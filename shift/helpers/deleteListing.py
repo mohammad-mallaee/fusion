@@ -51,7 +51,6 @@ class DeleteList(AlignedContainer):
         self.window.set_title("Deleting Result")
 
         def handle_click(_):
-            self.window.close()
             if callback:
                 callback()
 

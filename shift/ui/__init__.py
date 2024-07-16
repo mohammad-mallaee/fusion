@@ -1,5 +1,6 @@
 from pytermgui import WindowManager, Window
 from threading import Event
+from time import sleep
 
 
 class UserInterface(WindowManager):
@@ -13,3 +14,9 @@ class UserInterface(WindowManager):
             self.current_window.close()
         self.add(window)
         self.current_window = window
+
+    def animate_stop(self, wait=0.5):
+        if self.current_window:
+            self.current_window.close()
+        sleep(wait)
+        self.stop()

@@ -69,7 +69,6 @@ class SyncList(AlignedContainer):
         )
 
         def handle_click(_):
-            self.window.close()
             if callback:
                 callback()
 

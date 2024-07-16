@@ -31,7 +31,7 @@ def shift(device: Device, storage: Storage, ui: UserInterface, args):
                 progress.start()
                 ui.show(progress.window)
                 device.pull_files(storage, progress, file)
-                progress.end()
+                progress.end(ui.animate_stop)
             elif command == PUSH:
                 file = storage.get_file(source)
                 file.remote_path = dest
@@ -39,7 +39,7 @@ def shift(device: Device, storage: Storage, ui: UserInterface, args):
                 progress.start()
                 ui.show(progress.window)
                 device.push_files(progress, file)
-                progress.end()
+                progress.end(ui.animate_stop)
         else:
             return _shift_directory(device, storage, args, ui)
     except Exception as e:
@@ -66,18 +66,13 @@ def _shift_directory(device: Device, storage: Storage, args, ui: UserInterface):
     def get_source_path(path):
         return path.replace(destination, source)
 
-    def end(wait=0):
-        sleep(wait)
-        device.client.__exit__()
-        ui.stop()
-
     file_listing = SyncList(
         get_dest_path, None if args.force else dest_interface.should_sync, local=local
     )
     ui.show(file_listing.window)
     source_interface.list_files(source, file_listing)
     if args.dryrun:
-        return file_listing.show_result(lambda: end(0.4))
+        return file_listing.show_result(ui.animate_stop)
 
     def progress_callback():
         if args.delete:
@@ -88,9 +83,9 @@ def _shift_directory(device: Device, storage: Storage, args, ui: UserInterface):
             ui.show(delete_listing.window)
             dest_interface.list_files(destination, delete_listing)
             dest_interface.delete_files(delete_listing)
-            delete_listing.show_result(end)
+            delete_listing.show_result(ui.animate_stop)
         else:
-            end()
+            ui.animate_stop()
 
     progress = Progress(file_listing.transfer_size, file_listing.valid, local)
     ui.show(progress.window)

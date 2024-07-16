@@ -34,7 +34,6 @@ class Progress(AlignedContainer):
         self.window.set_title("Transfer Result")
 
         def handle_click(_):
-            self.window.close()
             if callback:
                 callback()
 
