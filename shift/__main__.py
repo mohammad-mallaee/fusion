@@ -133,12 +133,12 @@ if __name__ == "__main__":
     pull_parser = sub_parsers.add_parser(PULL)
     pull_parser.add_argument("source")
     pull_parser.add_argument("destination", nargs="?", default="./")
-    pull_parser.set_defaults(func=transfer)
+    pull_parser.set_defaults(func=transfer, command=PULL)
 
     pull_parser = sub_parsers.add_parser(PUSH)
     pull_parser.add_argument("source")
     pull_parser.add_argument("destination", nargs="?", default="sdcard/")
-    pull_parser.set_defaults(func=transfer)
+    pull_parser.set_defaults(func=transfer, command=PUSH)
 
     args = parser.parse_args()
     args.func(args)
