@@ -1,5 +1,7 @@
 import argparse
 from threading import Thread
+import subprocess
+import os
 
 from shift.ui import UserInterface
 from shift.client import AdbClient
@@ -12,25 +14,42 @@ from shift.helpers.constants import PULL, PUSH
 from shift.ui.prompt_list import PromptList
 from shift.ui.message import show_message
 from shift.ui.confirm import confirm
-
-parser = argparse.ArgumentParser(
-    prog="shift",
-    description="keep your phone and computer in sync",
-    epilog="I'll be happy to take your comments and feedbacks",
-)
-
-parser.add_argument("command", choices=[PULL, PUSH])
-parser.add_argument("source")
-parser.add_argument("destination", nargs="?", default="./")
-parser.add_argument("-d", "--delete", action="store_true")
-parser.add_argument("-f", "--force", action="store_true")
-parser.add_argument("-r", "--dryrun", action="store_true")
+from config import config
 
 
-args = parser.parse_args()
+def configuration(args):
+    def _run_config_command(func, *args):
+        try:
+            func(*args)
+            print(config)
+        except Exception as e:
+            print(e)
+
+    if args.command == "edit":
+        app_path = os.path.dirname(os.path.dirname(__file__))
+        config_path = os.path.join(app_path, "config.json")
+        if config.editor_name is None:
+            print("Could not identify your operating system!")
+            print("The configuration file is located at:")
+            print(config_path)
+            print("You can set your editor by running:")
+            print("shift config set editor <editor_name>")
+        else:
+            subprocess.run([config.editor_name, config_path])
+
+    elif args.command == "show":
+        print(config)
+    elif args.command == "set":
+        _run_config_command(config.set, args.key, args.value)
+    elif args.command == "add":
+        _run_config_command(config.add, args.key, args.value)
+    elif args.command == "remove":
+        _run_config_command(config.remove, args.key, args.value)
+    elif args.command == "reset":
+        _run_config_command(config.reset, args.key)
 
 
-if __name__ == "__main__":
+def transfer(args):
     try:
         c = AdbClient().__enter__()
         c.__exit__()
@@ -88,3 +107,38 @@ if __name__ == "__main__":
                     stop=True,
                 )
         ui.exit_event.set()
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="shift",
+        description="keep your phone and computer in sync",
+        epilog="I'll be happy to take your comments and feedbacks",
+    )
+    parser.add_argument("-d", "--delete", action="store_true")
+    parser.add_argument("-f", "--force", action="store_true")
+    parser.add_argument("-r", "--dryrun", action="store_true")
+    parser.add_argument("-c", "--content", action="store_true")
+
+    sub_parsers = parser.add_subparsers()
+
+    config_parser = sub_parsers.add_parser("config")
+    config_parser.add_argument(
+        "command", choices=["edit", "show", "reset", "set", "add", "remove"]
+    )
+    config_parser.add_argument("key", nargs="?")
+    config_parser.add_argument("value", nargs="?")
+    config_parser.set_defaults(func=configuration)
+
+    pull_parser = sub_parsers.add_parser(PULL)
+    pull_parser.add_argument("source")
+    pull_parser.add_argument("destination", nargs="?", default="./")
+    pull_parser.set_defaults(func=transfer)
+
+    pull_parser = sub_parsers.add_parser(PUSH)
+    pull_parser.add_argument("source")
+    pull_parser.add_argument("destination", nargs="?", default="sdcard/")
+    pull_parser.set_defaults(func=transfer)
+
+    args = parser.parse_args()
+    args.func(args)

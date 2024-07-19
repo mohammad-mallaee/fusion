@@ -68,7 +68,7 @@ class DeleteList(AlignedContainer):
         )
 
     def is_excluded(self, path):
-        return path in config["excluded_paths"]
+        return path in config.excluded_paths
 
     def validate(self, path):
         return False

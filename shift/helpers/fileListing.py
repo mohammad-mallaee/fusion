@@ -86,8 +86,8 @@ class SyncList(AlignedContainer):
         )
 
     def is_excluded(self, path: str):
-        exc_path = path in config["excluded_paths"]
-        hidden = not config["hidden_files"] and os.path.basename(path).startswith(".")
+        exc_path = path in config.excluded_paths
+        hidden = not config.hidden_files and os.path.basename(path).startswith(".")
         return exc_path or hidden
 
     def validate(self, path):
