@@ -14,10 +14,10 @@ def confirm(
 ):
     ui = ui if ui else UserInterface()
 
-    def confirm():
+    def confirm(btn=None):
         callback()
 
-    def reject():
+    def reject(btn=None):
         if stop:
             window.close()
             sleep(wait)

@@ -26,9 +26,6 @@ class PromptList(AlignedContainer):
         self.set_widgets(choices_text)
 
     def handle_key(self, key: str) -> bool:
-        if super().handle_key(key):
-            return True
-
         if key == keys.DOWN and self.choice_index < len(self.choices) - 1:
             self.choice_index += 1
             self.set_choice_list()
