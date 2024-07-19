@@ -65,7 +65,7 @@ class Device(PathInterface):
         id = self.client.read_string(4)
         mode, size, mtime = struct.unpack("<III", self.client.recv(12))
         if id != STAT:
-            raise
+            raise Exception("Invalid response from device")
         if st.S_ISLNK(mode) and follow_symlinks:
             self.reset_connection()
             self.client.send_shell_command(f'readlink -f "{path}"')
@@ -82,19 +82,16 @@ class Device(PathInterface):
 
     def delete_files(self, delete_listing: DeleteList):
         for file in delete_listing.files:
-            try:
-                self.reset_connection()
-                self.client.send_shell_command(f'rm "{file.remote_path}"')
-                delete_listing.deleted += 1
-                delete_listing.delete_size += file.size
-            except Exception:
-                raise
+            self.reset_connection()
+            self.client.send_shell_command(f'rm "{file.remote_path}"')
+            delete_listing.deleted += 1
+            delete_listing.delete_size += file.size
 
     def exists(self, path):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
         if id != STAT:
-            raise
+            raise Exception("Invalid response from device")
         mode, _, _ = struct.unpack("<III", self.client.recv(12))
         return mode != 0
 
@@ -138,7 +135,6 @@ class Device(PathInterface):
                     elif name != "." and name != "..":
                         dirs.append(entity_path)
                 elif id == FAIL:
-                    print(path)
                     raise AdbError(
                         "Failure response from device", client.read_string(1024)
                     )

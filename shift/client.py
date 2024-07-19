@@ -57,10 +57,7 @@ class AdbClient:
         encoded_command = cmd.encode()
         encoded_command_length = "{:04x}".format(len(encoded_command)).encode()
         self.send(encoded_command_length + encoded_command)
-        try:
-            self.check_response()
-        except Exception:
-            raise
+        self.check_response()
 
     def check_response(self):
         status = self.read_string(4)
@@ -68,7 +65,7 @@ class AdbClient:
             return
         elif status == FAIL:
             raise Exception(self.read_string_block())
-        raise Exception("Unexpected Error Happened !!", status)
+        raise Exception("Invalid response from device !!")
 
     def get_msg_length(self):
         return int(self.recv(4), 16)

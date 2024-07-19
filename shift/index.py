@@ -13,6 +13,13 @@ from shift.ui.message import show_message
 from shift.helpers.constants import PULL, PUSH
 
 
+def handle_exception(e, ui):
+    sleep(0.2)
+    write_log(f"ERROR {ui.exit_event.is_set()}", "".join(traceback.format_exception(e)))
+    if not ui.exit_event.is_set():
+        show_message("Unexpected Error", str(e), ui=ui, stop=True, wait=0.5)
+
+
 def shift(device: Device, storage: Storage, ui: UserInterface, args):
     command = args.command
 
@@ -43,12 +50,7 @@ def shift(device: Device, storage: Storage, ui: UserInterface, args):
         else:
             return _shift_directory(device, storage, args, ui)
     except Exception as e:
-        sleep(0.2)
-        write_log(
-            f"ERROR {ui.exit_event.is_set()}", "".join(traceback.format_exception(e))
-        )
-        if not ui.exit_event.is_set():
-            show_message("Unexpected Error", str(e), ui=ui, stop=True, wait=0.5)
+        handle_exception(e, ui)
 
 
 def _shift_directory(device: Device, storage: Storage, args, ui: UserInterface):
@@ -76,14 +78,17 @@ def _shift_directory(device: Device, storage: Storage, args, ui: UserInterface):
 
     def progress_callback():
         if args.delete:
-            device.reset_connection(True)
-            delete_listing = DeleteList(
-                get_source_path, source_interface.should_delete, local=local
-            )
-            ui.show(delete_listing.window)
-            dest_interface.list_files(destination, delete_listing)
-            dest_interface.delete_files(delete_listing)
-            delete_listing.show_result(ui.animate_stop)
+            try:
+                device.reset_connection(True)
+                delete_listing = DeleteList(
+                    get_source_path, source_interface.should_delete, local=local
+                )
+                ui.show(delete_listing.window)
+                dest_interface.list_files(destination, delete_listing)
+                dest_interface.delete_files(delete_listing)
+                delete_listing.show_result(ui.animate_stop)
+            except Exception as e:
+                handle_exception(e, ui)
         else:
             ui.animate_stop()
 
