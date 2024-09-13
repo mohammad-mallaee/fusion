@@ -11,3 +11,5 @@ DENT = "DENT"  # Directory Entity
 
 PULL = "pull"
 PUSH = "push"
+SYNC = "sync"
+DELETE = "delete"

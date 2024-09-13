@@ -1,5 +1,7 @@
 import json
 import platform
+import os
+import subprocess
 
 
 class Config:
@@ -7,6 +9,11 @@ class Config:
         self.excluded_paths = data["excluded_paths"]
         self.hidden_files = data["hidden_files"]
         self.editor = data["editor"]
+        self.conflict_resolution = data["conflict_resolution"]
+        if self.conflict_resolution not in ["sync", "force", "skip"]:
+            raise ValueError(
+                "Invalid conflict resolution. Must be one of: sync, force, skip"
+            )
 
     def __str__(self) -> str:
         return json.dumps(self.__dict__, indent=4)
@@ -91,8 +98,37 @@ class Config:
             json.dump(self.__dict__, f, indent=4)
 
 
+def configure(args):
+    def _run_config_command(func, *args):
+        try:
+            func(*args)
+            print(config)
+        except Exception as e:
+            print(e)
+
+    if args.command == "edit":
+        app_path = os.path.dirname(os.path.dirname(__file__))
+        config_path = os.path.join(app_path, "config.json")
+        if config.editor_name is None:
+            print("Could not identify your operating system!")
+            print("The configuration file is located at:")
+            print(config_path)
+            print("You can set your editor by running:")
+            print("shift config set editor <editor_name>")
+        else:
+            subprocess.run([config.editor_name, config_path])
+    else:
+        commands = {
+            "show": (print, config),
+            "set": (_run_config_command, config.set, args.key, args.value),
+            "add": (_run_config_command, config.add, args.key, args.value),
+            "remove": (_run_config_command, config.remove, args.key, args.value),
+            "reset": (_run_config_command, config.remove, args.key),
+        }
+        commands[args.command][0](*commands[args.command][1:])
+
+
 with open("config.json") as f:
     config_data = json.load(f)
-
 
 config = Config(config_data)

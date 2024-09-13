@@ -2,7 +2,6 @@ import subprocess
 import socket
 import re
 
-from shift.exceptions import AdbNotFound
 from shift.helpers.utils import write_log
 from shift.helpers.constants import OKAY, FAIL
 
@@ -87,9 +86,8 @@ class AdbClient:
         online_devices = list(
             filter(lambda d: d[1] == "device" or d[1] == "recovery", devices)
         )
-        offiline_devices = list(filter(lambda d: d[1] == "offline", devices))
         self.reset_connection()
-        return online_devices, offiline_devices
+        return online_devices
 
     def read_string_until_close(self, encoding: str = "utf-8") -> str:
         content = b""
