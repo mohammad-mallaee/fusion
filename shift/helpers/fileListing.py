@@ -18,6 +18,7 @@ class SyncList(AlignedContainer):
         self.transfer_size: int = 0
         self.total_size: int = 0
         self.files: list[File] = []
+        self.dirs: set[str] = set()
         self._current_dir = ""
         self.local = local
         self.processed_dirs = 0
@@ -48,6 +49,9 @@ class SyncList(AlignedContainer):
 
     def append(self, file: File):
         self.files.append(file)
+        self.dirs.add(
+            os.path.dirname(file.remote_path if self.local else file.local_path)
+        )
         self.transfer_size += file.size
         self.valid += 1
 

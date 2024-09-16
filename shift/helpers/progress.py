@@ -4,18 +4,20 @@ from shift.helpers.file import File
 from shift.helpers.utils import truncate_middle, get_size, get_percent
 from shift.ui.container import AlignedContainer
 from shift.ui.progress_bar import ProgresBar
+from shift.helpers.fileListing import SyncList
 
 
 class Progress(AlignedContainer):
-    def __init__(self, total_size, total_files, local=False) -> None:
+    def __init__(self, file_listing: SyncList) -> None:
         super().__init__(box=boxes.Box(["", " x ", ""]))
-        self.total_size = total_size
+        self.total_size = file_listing.total_size
         self.total_transfer = 0
         self.file_transfer = 0
-        self.total_files = total_files
+        self.total_files = len(file_listing.files)
         self.files = 0
         self.file = File("", "", "", 0, 0, 0)
-        self.local = local
+        self.local = file_listing.local
+        self.dirs = file_listing.dirs.copy()
 
         self.progress_bar = ProgresBar()
         self.set_widgets(["", "", "", "", "", ""])

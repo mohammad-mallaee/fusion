@@ -51,6 +51,10 @@ class Device(PathInterface):
             chunk_size = len(chunk)
         return chunk
 
+    def send_shell_command(self, shell_cmd: str):
+        self.reset_connection()
+        self.client.send_shell_command(shell_cmd)
+
     def should_sync(self, file: File):
         self.send_sync_command("STAT", file.remote_path)
         self.client.read_string(4)
@@ -67,8 +71,7 @@ class Device(PathInterface):
         if id != STAT:
             raise Exception("Invalid response from device")
         if st.S_ISLNK(mode) and follow_symlinks:
-            self.reset_connection()
-            self.client.send_shell_command(f'readlink -f "{path}"')
+            self.send_shell_command(f'readlink -f "{path}"')
             real_path = self.client.read_string_until_close().split("\n")[0]
             self.reset_connection(True)
             return self.stat(real_path)
@@ -82,8 +85,7 @@ class Device(PathInterface):
 
     def delete_files(self, delete_listing: DeleteList):
         for file in delete_listing.files:
-            self.reset_connection()
-            self.client.send_shell_command(f'rm "{file.remote_path}"')
+            self.send_shell_command(f'rm "{file.remote_path}"')
             delete_listing.deleted += 1
             delete_listing.delete_size += file.size
 
@@ -165,12 +167,24 @@ class Device(PathInterface):
                 progress.update_file(chunk_size)
             status_msg = self.client.read_string(4)
             if status_msg != OKAY:
-                raise AdbError(status_msg)
+                raise AdbError(
+                    status_msg
+                    + " "
+                    + self.client.read_string_until_close()
+                    + "\n"
+                    + adb_path
+                )
             else:
                 self.client.recv(4)
 
     def push_files(self, progress: Progress, *files: File):
         for file in files:
+            d = os.path.dirname(file.remote_path)
+            if d in progress.dirs:
+                self.send_shell_command(f'mkdir -p "{d}"')
+                self.client.read_string_until_close()
+                progress.dirs.remove(d)
+                self.reset_connection(True)
             self._push_file(progress, file)
 
     def _pull_file(self, storage: Storage, progress: Progress, file: File):

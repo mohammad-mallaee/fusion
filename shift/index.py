@@ -31,7 +31,10 @@ def shift(device: Device, storage: Storage, ui: UserInterface, args):
             if command == PULL:
                 file = device.get_file(source)
                 file.local_path = dest
-                progress = Progress(file.size, 1)
+                file_listing = SyncList(lambda path: path, local=False)
+                file_listing.append_process(file)
+                file_listing.append(file)
+                progress = Progress(file_listing)
                 progress.start()
                 ui.show(progress.window)
                 device.pull_files(storage, progress, file)
@@ -39,7 +42,10 @@ def shift(device: Device, storage: Storage, ui: UserInterface, args):
             elif command == PUSH:
                 file = storage.get_file(source)
                 file.remote_path = dest
-                progress = Progress(file.size, 1)
+                file_listing = SyncList(lambda path: path, local=True)
+                file_listing.append_process(file)
+                file_listing.append(file)
+                progress = Progress(file_listing)
                 progress.start()
                 ui.show(progress.window)
                 device.push_files(progress, file)
@@ -71,7 +77,9 @@ def transfer(device: Device, storage: Storage, args, ui: UserInterface):
             return False
 
     def get_dest_path(path):
-        return path.replace(args.source, args.destination)
+        return (
+            args.destination + path[path.startswith(args.source) and len(args.source) :]
+        )
 
     def validate(path):
         if args.force:
@@ -88,7 +96,7 @@ def transfer(device: Device, storage: Storage, args, ui: UserInterface):
     if args.dryrun:
         return file_listing.show_result(ui.animate_stop)
 
-    progress = Progress(file_listing.transfer_size, file_listing.valid, local)
+    progress = Progress(file_listing)
     ui.show(progress.window)
     progress.start()
     if command == PULL:
@@ -133,7 +141,7 @@ def sync(device: Device, storage: Storage, ui: UserInterface, args):
     if args.dryrun:
         file_listing.show_result(sync_callback)
     else:
-        progress = Progress(file_listing.transfer_size, file_listing.valid, local)
+        progress = Progress(file_listing)
         ui.show(progress.window)
         progress.start()
         if args.reverse:
