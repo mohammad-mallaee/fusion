@@ -51,9 +51,11 @@ class Device(PathInterface):
             chunk_size = len(chunk)
         return chunk
 
-    def send_shell_command(self, shell_cmd: str):
+    def send_shell_command(self, shell_cmd: str, wait = False):
         self.reset_connection()
         self.client.send_shell_command(shell_cmd)
+        if wait:
+            self.client.read_string_until_close()
 
     def should_sync(self, file: File):
         self.send_sync_command("STAT", file.remote_path)
@@ -67,9 +69,9 @@ class Device(PathInterface):
     def stat(self, path, follow_symlinks=True):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
-        mode, size, mtime = struct.unpack("<III", self.client.recv(12))
         if id != STAT:
             raise Exception("Invalid response from device")
+        mode, size, mtime = struct.unpack("<III", self.client.recv(12))
         if st.S_ISLNK(mode) and follow_symlinks:
             self.send_shell_command(f'readlink -f "{path}"')
             real_path = self.client.read_string_until_close().split("\n")[0]

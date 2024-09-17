@@ -114,12 +114,12 @@ if __name__ == "__main__":
     sync_parser.add_argument("-d", "--delete", action="store_true")
     sync_parser.set_defaults(func=transfer, command=SYNC)
 
-    push_parser = sub_parsers.add_parser(DELETE)
-    push_parser.add_argument("source")
-    push_parser.add_argument("destination")
-    push_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
-    push_parser.add_argument("-r", "--reverse", action="store_true")
-    push_parser.set_defaults(func=transfer, command=DELETE)
+    # push_parser = sub_parsers.add_parser(DELETE)
+    # push_parser.add_argument("source")
+    # push_parser.add_argument("destination")
+    # push_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
+    # push_parser.add_argument("-r", "--reverse", action="store_true")
+    # push_parser.set_defaults(func=transfer, command=DELETE)
 
     args = parser.parse_args()
     if args.command == SYNC or args.command == DELETE:
