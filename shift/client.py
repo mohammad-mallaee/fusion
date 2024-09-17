@@ -2,8 +2,8 @@ import subprocess
 import socket
 import re
 
-from shift.helpers.utils import write_log
 from shift.helpers.constants import OKAY, FAIL
+from shift.helpers.logger import log
 
 
 class AdbClient:
@@ -34,7 +34,7 @@ class AdbClient:
             stderr=subprocess.PIPE,
         )
         if result.stderr:
-            write_log("AdbError", result.stderr.decode())
+            log.error("AdbError", result.stderr.decode())
             raise FileNotFoundError()
 
     def connect_to_server(self, socket: socket.socket):

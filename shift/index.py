@@ -7,16 +7,16 @@ import traceback
 from shift.helpers.fileListing import SyncList
 from shift.helpers.deleteListing import DeleteList
 from shift.helpers.progress import Progress
-from shift.helpers.utils import write_log
 from shift.ui.message import show_message
 
 from shift.helpers.constants import PULL, PUSH, SYNC, DELETE
 from config import config
+from shift.helpers.logger import log
 
 
 def handle_exception(e, ui):
     sleep(0.2)
-    write_log(f"ERROR {ui.exit_event.is_set()}", "".join(traceback.format_exception(e)))
+    log.error("".join(traceback.format_exception(e)))
     if not ui.exit_event.is_set():
         show_message("Unexpected Error", str(e), ui=ui, stop=True, wait=0.5)
 

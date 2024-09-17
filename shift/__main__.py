@@ -12,14 +12,21 @@ from shift.helpers.constants import PULL, PUSH, SYNC, DELETE
 from shift.ui.prompt_list import PromptList
 from shift.ui.message import show_message
 from config import configure
+from shift.helpers.logger import log
 
 
 def transfer(args):
+    log.info(
+        f"""{args.command}{" dryrun" if args.dryrun else ""}{" content" if args.content else ""}{" force" if args.force else ""}{" skip" if args.skip else ""}{" sync" if args.sync else ""}
+>> source: {args.source}
+>> destination: {args.destination}"""
+    )
     try:
         c = AdbClient().__enter__()
         c.__exit__()
     except FileNotFoundError:
         show_message("Connection Error", "Couldn't find adb", stop=True, wait=0.5)
+        log.error("Connection_Error -> Couldn't find adb")
     else:
         with AdbClient() as client, UserInterface() as ui:
             storage = Storage()
@@ -40,6 +47,7 @@ def transfer(args):
 
                 if args.error:
                     show_message("Path Error", args.error, ui=ui, stop=True)
+                    log.error(f"Path_Error\n>> {args.error}")
                 else:
                     _start_thread()
 
