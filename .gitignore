@@ -6,3 +6,4 @@ dist
 *.egg-info
 shift.log*
 .pytest_cache
+.venv

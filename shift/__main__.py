@@ -75,7 +75,7 @@ def transfer(args):
         ui.exit_event.set()
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         prog="shift",
         description="keep your phone and computer in sync",
@@ -135,3 +135,7 @@ if __name__ == "__main__":
             "./" if args.reverse and args.destination is None else args.destination
         )
     args.func(args)
+
+
+if __name__ == "__main__":
+    main()
