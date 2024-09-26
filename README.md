@@ -2,11 +2,6 @@
 
 Fusion is a command-line tool designed to streamline the process of keeping your computer and Android device in sync. It offers a user-friendly interface and efficient functionality to make file transfers and synchronization a breeze.
 
-
-<img style="width:100%; max-width:560px; margin:auto; display:block;" src="https://pouch.jumpshare.com/preview/PK_XqPg8M8wxveGjUUUDzvBlslM2sTlu_t9kIS7CLemNINL2qU_YArePEzdCDbqXFPfdt6yr_MkMmbheFtb9flyhhbS57cMnQUacDTfu-hQ">
-</img>
-
-
 ### **Requirements**
 
 - **Python:** Ensure you have the latest Python installed on your system, you can download it from [python.org](https://www.python.org) .
