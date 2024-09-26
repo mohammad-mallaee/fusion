@@ -1,17 +1,17 @@
-from shift.device import Device
-from shift.storage import Storage
-from shift.ui import UserInterface
+from fusion.device import Device
+from fusion.storage import Storage
+from fusion.ui import UserInterface
 from time import sleep
 import traceback
 
-from shift.helpers.fileListing import SyncList
-from shift.helpers.deleteListing import DeleteList
-from shift.helpers.progress import Progress
-from shift.ui.message import show_message
+from fusion.helpers.fileListing import SyncList
+from fusion.helpers.deleteListing import DeleteList
+from fusion.helpers.progress import Progress
+from fusion.ui.message import show_message
 
-from shift.helpers.constants import PULL, PUSH, SYNC, DELETE
-from config import config
-from shift.helpers.logger import log
+from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
+from fusion.config import config
+from fusion.helpers.logger import log
 
 
 def handle_exception(e, ui):
@@ -21,7 +21,7 @@ def handle_exception(e, ui):
         show_message("Unexpected Error", str(e), ui=ui, stop=True, wait=0.5)
 
 
-def shift(device: Device, storage: Storage, ui: UserInterface, args):
+def fusion(device: Device, storage: Storage, ui: UserInterface, args):
     command = args.command
     source = args.source
     dest = args.destination

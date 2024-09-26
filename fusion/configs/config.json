@@ -1,0 +1,8 @@
+{
+    "excluded_paths": [
+        "sdcard/Android"
+    ],
+    "hidden_files": false,
+    "editor": "default",
+    "conflict_resolution": "sync"
+}

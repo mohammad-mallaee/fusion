@@ -1,7 +1,7 @@
 from pytest import fixture
-from shift.client import AdbClient
-from shift.device import Device
-from shift.storage import Storage
+from fusion.client import AdbClient
+from fusion.device import Device
+from fusion.storage import Storage
 
 
 @fixture

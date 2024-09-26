@@ -1,33 +1,57 @@
-## **What is Shift ?**
+## **What is Fusion ?**
 
-Shift is a command-line tool designed to streamline the process of keeping your computer and Android device in sync. It offers a user-friendly interface and efficient functionality to make file transfers and synchronization a breeze.
+Fusion is a command-line tool designed to streamline the process of keeping your computer and Android device in sync. It offers a user-friendly interface and efficient functionality to make file transfers and synchronization a breeze.
+
+
+<img style="width:100%; max-width:560px; margin:auto; display:block;" src="https://pouch.jumpshare.com/preview/PK_XqPg8M8wxveGjUUUDzvBlslM2sTlu_t9kIS7CLemNINL2qU_YArePEzdCDbqXFPfdt6yr_MkMmbheFtb9flyhhbS57cMnQUacDTfu-hQ">
+</img>
+
 
 ### **Requirements**
 
-* **Python:** Ensure you have the latest Python installed on your system, you can download it from [python.org](https://www.python.org) .
-* **Android Debug Bridge (ADB):** shift uses ADB under the hood to communicate with your device. You can find the latest ADB releases and download instructions on the [Google Developer website](https://developer.android.com/tools/adb) .
+- **Python:** Ensure you have the latest Python installed on your system, you can download it from [python.org](https://www.python.org) .
+- **Android Debug Bridge (ADB):** fusion uses ADB under the hood to communicate with your device. You can find the latest ADB releases and download instructions on the [Google Developer website](https://developer.android.com/tools/adb) .
 
-**Connecting your device:**
-1. Enable USB debugging on your Android device:
-   * Go to Settings > Developer options > USB debugging.
-2. Connect your device to your computer using a USB cable.
-3. Open a terminal or command prompt and type `adb devices`. If your device is listed, it's connected correctly.
+### **Connecting your device**
+
+You have varous options to connect your device and all of them are written on the [Google Developer website](https://developer.android.com/tools/adb#Enabling) :
+
+- **USB:** Connect your device to your computer using a USB cable after [enabling USB debugging](https://developer.android.com/tools/adb#Enabling) on your device.
+- **WiFi:** Connect your device to your computer [using the same WiFi network](https://developer.android.com/tools/adb#wireless-android11-command-line).
+- **Hotspot:** the wifi connection is not supported on Android 10 and lower or with a hotspot connection so you have to use a USB connection at first then use the app. Read along the [Google Developer website](https://developer.android.com/tools/adb#wireless) for more information.
+
+### **Installation**
+
+Use pip (Python Package Index) to install fusion:
+
+```bash
+pip install fusion-sync
+```
+
+The reason that the package is named `fusion-sync` is because `fusion` is already taken by a different package.
 
 ### **Usage**
+
 Pull files from your device to your computer :
+
 ```bash
-shift pull <source> <destination>
+fusion pull <source> <destination>
 ```
+
 Push files from your computer to your device :
+
 ```bash
-shift push <source> <destination>
+fusion push <source> <destination>
 ```
+
 Synchronize files between your computer and device :
+
 ```bash
-shift sync <source> <destination>
+fusion sync <source> <destination>
 ```
 
 #### **Flags**
+
 - **`--dryrun,--dry`:** Perform a dry run without actually transferring files.
 - **`--content,-c`:** Transfer content of the directory without the directory itself.
 - **`--skip,-p`:** Skip files that exist on both sides.
@@ -40,13 +64,22 @@ shift sync <source> <destination>
 
 **P.S 2**: reverse and delete flags are only for sync command.
 
-### **Example**
-To pull all documents from your device to a folder named "Documents" on your computer:
+### **Examples**
+
+To pull all documents from your device to a folder named "Documents" on your computer :
+
 ```bash
-shift pull /sdcard/Documents ./Docuemnts
+fusion pull /sdcard/Documents ./Docuemnts
 ```
 
-To push all documents from your computer to your device and change its name to `MyDocs`:
+Sync two directories and delete files that don't exist on your phone anymore :
+
 ```bash
-shift push --content ./Documents /sdcard/MyDocs
+fusion sync --delete ./Documents /sdcard/Documents
+```
+
+To push all documents from your computer to your device and change its name to `MyDocs` :
+
+```bash
+fusion push --content ./Documents /sdcard/MyDocs
 ```

@@ -1,5 +1,5 @@
-from shift.helpers.stat import Stat
-from shift.helpers.file import File
+from fusion.helpers.stat import Stat
+from fusion.helpers.file import File
 
 
 class PathInterface:

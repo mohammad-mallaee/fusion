@@ -1,11 +1,11 @@
 from pytermgui import boxes, Button
 import os
 
-from shift.helpers.file import File
-from shift.ui.container import AlignedContainer
-from shift.helpers.utils import truncate_first, get_size
-from shift.ui.keyboard_window import KeyboardWindow
-from config import config
+from fusion.helpers.file import File
+from fusion.ui.container import AlignedContainer
+from fusion.helpers.utils import truncate_first, get_size
+from fusion.ui.keyboard_window import KeyboardWindow
+from fusion.config import config
 
 
 class SyncList(AlignedContainer):

@@ -1,9 +1,9 @@
 import os
-from shift.helpers.fileListing import SyncList
-from shift.helpers.deleteListing import DeleteList
-from shift.helpers.file import File
-from shift.helpers.stat import Stat
-from shift.helpers.interface import PathInterface
+from fusion.helpers.fileListing import SyncList
+from fusion.helpers.deleteListing import DeleteList
+from fusion.helpers.file import File
+from fusion.helpers.stat import Stat
+from fusion.helpers.interface import PathInterface
 
 
 class Storage(PathInterface):

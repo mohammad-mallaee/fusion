@@ -1,18 +1,18 @@
 import argparse
 from threading import Thread
 
-from shift.ui import UserInterface
-from shift.client import AdbClient
-from shift.device import Device
-from shift.storage import Storage
-from shift.index import shift
+from fusion.ui import UserInterface
+from fusion.client import AdbClient
+from fusion.device import Device
+from fusion.storage import Storage
+from fusion.index import fusion
 
-from shift.path import process_paths
-from shift.helpers.constants import PULL, PUSH, SYNC, DELETE
-from shift.ui.prompt_list import PromptList
-from shift.ui.message import show_message
-from config import configure
-from shift.helpers.logger import log
+from fusion.path import process_paths
+from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
+from fusion.ui.prompt_list import PromptList
+from fusion.ui.message import show_message
+from fusion.config import configure
+from fusion.helpers.logger import log
 
 
 def transfer(args):
@@ -38,7 +38,7 @@ def transfer(args):
                 args.is_file = False
 
                 def _start_thread():
-                    Thread(target=shift, args=(device, storage, ui, args)).start()
+                    Thread(target=fusion, args=(device, storage, ui, args)).start()
 
                 if command in [PULL, SYNC, DELETE]:
                     process_paths(device, storage, args)
@@ -77,7 +77,7 @@ def transfer(args):
 
 def main():
     parser = argparse.ArgumentParser(
-        prog="shift",
+        prog="fusion",
         description="keep your phone and computer in sync",
         epilog="I'll be happy to take your comments and feedbacks",
     )
@@ -130,11 +130,14 @@ def main():
     # push_parser.set_defaults(func=transfer, command=DELETE)
 
     args = parser.parse_args()
-    if args.command == SYNC or args.command == DELETE:
-        args.destination = (
-            "./" if args.reverse and args.destination is None else args.destination
-        )
-    args.func(args)
+    if "command" not in args:
+        parser.print_help()
+    else:
+        if args.command == SYNC or args.command == DELETE:
+            args.destination = (
+                "./" if args.reverse and args.destination is None else args.destination
+            )
+        args.func(args)
 
 
 if __name__ == "__main__":

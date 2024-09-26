@@ -4,6 +4,7 @@ __pycache__
 .DS_Store
 dist
 *.egg-info
-shift.log*
+fusion.log*
 .pytest_cache
 .venv
+build

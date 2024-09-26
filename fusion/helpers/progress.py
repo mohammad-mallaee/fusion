@@ -1,10 +1,10 @@
 from pytermgui import boxes, Window, Button
 import time
-from shift.helpers.file import File
-from shift.helpers.utils import truncate_middle, get_size, get_percent
-from shift.ui.container import AlignedContainer
-from shift.ui.progress_bar import ProgresBar
-from shift.helpers.fileListing import SyncList
+from fusion.helpers.file import File
+from fusion.helpers.utils import truncate_middle, get_size, get_percent
+from fusion.ui.container import AlignedContainer
+from fusion.ui.progress_bar import ProgresBar
+from fusion.helpers.fileListing import SyncList
 
 
 class Progress(AlignedContainer):

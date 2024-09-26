@@ -1,6 +1,6 @@
 from pytermgui import boxes, keys
-from shift.ui.keyboard_window import KeyboardWindow
-from shift.ui.container import AlignedContainer
+from fusion.ui.keyboard_window import KeyboardWindow
+from fusion.ui.container import AlignedContainer
 
 
 class PromptList(AlignedContainer):

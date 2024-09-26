@@ -2,8 +2,8 @@ import subprocess
 import socket
 import re
 
-from shift.helpers.constants import OKAY, FAIL
-from shift.helpers.logger import log
+from fusion.helpers.constants import OKAY, FAIL
+from fusion.helpers.logger import log
 
 
 class AdbClient:

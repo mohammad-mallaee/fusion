@@ -1,4 +1,4 @@
-from shift.ui import UserInterface
+from fusion.ui import UserInterface
 from pytermgui import Window, Container, Button, boxes
 
 

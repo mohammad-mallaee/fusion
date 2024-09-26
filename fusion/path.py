@@ -1,9 +1,9 @@
 from os.path import basename, join, normpath, dirname
 import stat
-from shift.helpers.utils import can_creat_directory
-from shift.helpers.interface import PathInterface
+from fusion.helpers.utils import can_creat_directory
+from fusion.helpers.interface import PathInterface
 
-from shift.helpers.constants import PULL, PUSH, SYNC, DELETE
+from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
 
 
 def process_paths(source_interface: PathInterface, dest_interface: PathInterface, args):

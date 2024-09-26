@@ -2,16 +2,16 @@ import struct
 import os
 import stat as st
 
-from shift.client import AdbClient
-from shift.exceptions import AdbError
-from shift.storage import Storage
-from shift.helpers.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
-from shift.helpers.fileListing import SyncList
-from shift.helpers.deleteListing import DeleteList
-from shift.helpers.file import File
-from shift.helpers.stat import Stat
-from shift.helpers.progress import Progress
-from shift.helpers.interface import PathInterface
+from fusion.client import AdbClient
+from fusion.exceptions import AdbError
+from fusion.storage import Storage
+from fusion.helpers.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
+from fusion.helpers.fileListing import SyncList
+from fusion.helpers.deleteListing import DeleteList
+from fusion.helpers.file import File
+from fusion.helpers.stat import Stat
+from fusion.helpers.progress import Progress
+from fusion.helpers.interface import PathInterface
 
 
 class Device(PathInterface):

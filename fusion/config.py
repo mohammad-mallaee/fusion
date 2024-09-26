@@ -1,7 +1,11 @@
 import json
 import platform
-import os
 import subprocess
+import importlib
+from os.path import join
+
+configs_dir = importlib.import_module("fusion.configs").__path__[0]
+config_path = join(configs_dir, "config.json")
 
 
 class Config:
@@ -36,7 +40,9 @@ class Config:
             return (
                 True
                 if data.lower() == "true"
-                else False if data.lower() == "false" else None
+                else False
+                if data.lower() == "false"
+                else None
             )
         elif type is int:
             try:
@@ -48,16 +54,16 @@ class Config:
         return None
 
     def reset(self, key=None):
-        with open("default.json", "r") as default_file:
+        with open(join(configs_dir, "default.json"), "r") as default_file:
             default_data = json.load(default_file)
         if key is None:
-            with open("config.json", "w") as config_file:
+            with open(config_path, "w") as config_file:
                 json.dump(default_data, config_file, indent=4)
             self.__init__(default_data)
         else:
             if key in self.__dict__:
                 self.__dict__[key] = default_data[key]
-                with open("config.json", "w") as f:
+                with open(config_path, "w") as f:
                     json.dump(self.__dict__, f, indent=4)
             else:
                 raise Exception(f"{key} is not a valid setting")
@@ -70,7 +76,7 @@ class Config:
         if converted_value is None:
             raise Exception("Invalid value for setting")
         self.__dict__[key] = converted_value
-        with open("config.json", "w") as f:
+        with open(config_path, "w") as f:
             json.dump(self.__dict__, f, indent=4)
 
     def add(self, key, value):
@@ -82,7 +88,7 @@ class Config:
         if value in item:
             raise Exception("Value already exists in the list")
         self.__dict__[key].append(value)
-        with open("config.json", "w") as f:
+        with open(config_path, "w") as f:
             json.dump(self.__dict__, f, indent=4)
 
     def remove(self, key, value):
@@ -94,7 +100,7 @@ class Config:
         if value not in item:
             raise Exception("Value does not exist in the list")
         self.__dict__[key].remove(value)
-        with open("config.json", "w") as f:
+        with open(config_path, "w") as f:
             json.dump(self.__dict__, f, indent=4)
 
 
@@ -107,14 +113,12 @@ def configure(args):
             print(e)
 
     if args.command == "edit":
-        app_path = os.path.dirname(os.path.dirname(__file__))
-        config_path = os.path.join(app_path, "config.json")
         if config.editor_name is None:
             print("Could not identify your operating system!")
             print("The configuration file is located at:")
             print(config_path)
             print("You can set your editor by running:")
-            print("shift config set editor <editor_name>")
+            print("fusion config set editor <editor_name>")
         else:
             subprocess.run([config.editor_name, config_path])
     else:
@@ -128,7 +132,7 @@ def configure(args):
         commands[args.command][0](*commands[args.command][1:])
 
 
-with open("config.json") as f:
+with open(config_path, "r") as f:
     config_data = json.load(f)
 
 config = Config(config_data)
