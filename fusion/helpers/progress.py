@@ -1,5 +1,5 @@
 from pytermgui import boxes, Window, Button
-import time
+from time import perf_counter
 from fusion.helpers.file import File
 from fusion.helpers.utils import truncate_middle, get_size, get_percent
 from fusion.ui.container import AlignedContainer
@@ -28,18 +28,18 @@ class Progress(AlignedContainer):
         )
 
     def start(self):
-        self.start_time = time.time()
+        self.start_time = perf_counter()
         self.update_progress()
 
     def end(self, callback=None):
-        self.end_time = time.time()
+        self.end_time = perf_counter()
         self.window.set_title("Transfer Result")
 
         def handle_click(_):
             if callback:
                 callback()
 
-        elapsed_time = time.time() - self.start_time
+        elapsed_time = perf_counter() - self.start_time
         err_msg = (
             "There was no error during transfer"
             if self.total_transfer == self.total_size
@@ -59,13 +59,13 @@ class Progress(AlignedContainer):
         )
 
     def start_file(self, file: File):
-        self.file_start_time = time.time()
+        self.file_start_time = perf_counter()
         self.file_transfer = 0
         self.file = file
         self.update_progress()
 
     def end_file(self):
-        self.file_end_time = time.time()
+        self.file_end_time = perf_counter()
         self.files += 1
         self.update_progress()
 
@@ -77,7 +77,7 @@ class Progress(AlignedContainer):
     def update_progress(self):
         self.progress_bar.update(get_percent(self.total_transfer, self.total_size))
 
-        speed = get_size(self.total_transfer / (time.time() - self.start_time), " ")
+        speed = get_size(self.total_transfer / (perf_counter() - self.start_time), " ")
         files_progress = f"{self.files} / {self.total_files}"
         size_progress = f'{get_size(self.total_transfer, " "):>8} / {get_size(self.total_size, " "):<8}'
         speed_prgress = f"{speed}/s"
