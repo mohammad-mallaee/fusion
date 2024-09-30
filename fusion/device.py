@@ -12,7 +12,7 @@ from fusion.helpers.file import File
 from fusion.helpers.stat import Stat
 from fusion.helpers.progress import Progress
 from fusion.helpers.interface import PathInterface
-
+import posixpath
 
 class Device(PathInterface):
     def __init__(
@@ -121,7 +121,7 @@ class Device(PathInterface):
                         "<IIII", bytes
                     )
                     name = client.read_string(name_length)
-                    entity_path = os.path.join(path, name)
+                    entity_path = posixpath.join(path, name)
                     if file_listing.is_excluded(entity_path):
                         continue
                     if st.S_ISREG(mode):

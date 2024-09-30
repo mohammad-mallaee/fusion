@@ -1,7 +1,8 @@
-from os.path import basename, join, normpath, dirname
+from os.path import basename, join, normpath, dirname, sep as seperator
 import stat
 from fusion.helpers.utils import can_creat_directory
 from fusion.helpers.interface import PathInterface
+import posixpath
 
 from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
 
@@ -14,8 +15,16 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
 
 
 def process_sync_paths(device: PathInterface, storage: PathInterface, args):
-    source_path = normpath(args.source)
-    dest_path = normpath(args.destination)
+    source_path = (
+        posixpath.normpath(args.source)
+        if args.command == PULL
+        else normpath(args.source)
+    )
+    dest_path = (
+        normpath(args.destination)
+        if args.command == PULL
+        else posixpath.normpath(args.destination)
+    )
     source_interface = None
     dest_interface = None
 
@@ -73,13 +82,21 @@ def process_sync_paths(device: PathInterface, storage: PathInterface, args):
 def process_transfer_paths(
     source_interface: PathInterface, dest_interface: PathInterface, args
 ):
-    source_path = normpath(args.source)
-    dest_path = normpath(args.destination)
+    source_path = (
+        posixpath.normpath(args.source)
+        if args.command == PULL
+        else normpath(args.source)
+    )
+    dest_path = (
+        normpath(args.destination)
+        if args.command == PULL
+        else posixpath.normpath(args.destination)
+    )
 
     if args.command == PULL:
         source_path = source_path.lstrip("/")
     elif args.command == PUSH:
-        dest_path = "sdcard" if dest_path == "." else dest_path.lstrip("/")
+        dest_path = "sdcard" if dest_path == "." else dest_path.lstrip(seperator)
 
     args.error = None
     args.source = source_path
@@ -89,6 +106,12 @@ def process_transfer_paths(
         return
 
     source_stats = source_interface.stat(source_path, True)
+
+    def join_dest(path, *paths):
+        if args.command == PULL:
+            return join(path, *paths)
+        else:
+            return posixpath.join(path, *paths)
 
     def is_file(source: str, dest: str):
         source = basename(source)
@@ -102,7 +125,7 @@ def process_transfer_paths(
         return True
 
     def process_file_path(file_name):
-        file_path = join(dest_path, file_name)
+        file_path = join_dest(dest_path, file_name)
         args.destination = file_path
         if dest_interface.exists(file_path):
             dest_stats = dest_interface.stat(dest_path)
@@ -147,7 +170,7 @@ def process_transfer_paths(
                 )
 
         else:
-            dest_path = join(dest_path, source_stats.name)
+            dest_path = join_dest(dest_path, source_stats.name)
             args.destination = dest_path
             if not can_creat_directory(dest_directory):
                 args.error = (
@@ -164,7 +187,7 @@ def process_transfer_paths(
                 if args.content:
                     args.destination = dest_path
                     return
-                dest_path = join(dest_path, basename(source_path))
+                dest_path = join_dest(dest_path, basename(source_path))
                 args.destination = dest_path
             elif stat.S_ISREG(dest_stats.mode):
                 args.error = "you cannot transfer a directory to a file!"
@@ -176,7 +199,9 @@ def process_transfer_paths(
                 )
         else:
             args.destination = (
-                dest_path if args.content else join(dest_path, basename(source_path))
+                dest_path
+                if args.content
+                else join_dest(dest_path, basename(source_path))
             )
             if not can_creat_directory(dest_path):
                 args.error = (
