@@ -15,8 +15,16 @@ def process_paths(source_interface: PathInterface, dest_interface: PathInterface
 
 
 def process_sync_paths(device: PathInterface, storage: PathInterface, args):
-    source_path = normpath(args.source)
-    dest_path = normpath(args.destination)
+    source_path = (
+        posixpath.normpath(args.source)
+        if args.command == PULL
+        else normpath(args.source)
+    )
+    dest_path = (
+        normpath(args.destination)
+        if args.command == PULL
+        else posixpath.normpath(args.destination)
+    )
     source_interface = None
     dest_interface = None
 
