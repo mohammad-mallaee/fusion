@@ -9,7 +9,7 @@ Fusion is a command-line tool designed to streamline the process of keeping your
 
 ### **Connecting your device**
 
-You have varous options to connect your device and all of them are written on the [Google Developer website](https://developer.android.com/tools/adb#Enabling) :
+You have various options to connect your device and all of them are written on the [Google Developer website](https://developer.android.com/tools/adb#Enabling) :
 
 - **USB:** Connect your device to your computer using a USB cable after [enabling USB debugging](https://developer.android.com/tools/adb#Enabling) on your device.
 - **WiFi:** Connect your device to your computer [using the same WiFi network](https://developer.android.com/tools/adb#wireless-android11-command-line).
@@ -23,7 +23,7 @@ Use pip (Python Package Index) to install fusion:
 pip install fusion-sync
 ```
 
-The reason that the package is named `fusion-sync` is because `fusion` is already taken by a different package.
+The reason that the package is named `fusion-sync` is because `fusion` was unavailable so, nothing to worry.
 
 ### **Usage**
 
@@ -70,7 +70,7 @@ fusion pull /sdcard/Documents ./Docuemnts
 Sync two directories and delete files that don't exist on your phone anymore :
 
 ```bash
-fusion sync --delete ./Documents /sdcard/Documents
+fusion sync --delete /sdcard/Documents ./Documents
 ```
 
 To push all documents from your computer to your device and change its name to `MyDocs` :
