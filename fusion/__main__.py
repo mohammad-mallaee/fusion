@@ -16,11 +16,18 @@ from fusion.helpers.logger import log
 
 
 def transfer(args):
-    log.info(
-        f"""{args.command}{" dryrun" if args.dryrun else ""}{" content" if args.content else ""}{" force" if args.force else ""}{" skip" if args.skip else ""}{" sync" if args.sync else ""}
+    if args.command == SYNC:
+        log.info(
+            f"""{args.command}{" dryrun" if args.dryrun else ""} sync
 >> source: {args.source}
 >> destination: {args.destination}"""
-    )
+        )
+    else:
+        log.info(
+            f"""{args.command}{" dryrun" if args.dryrun else ""}{" content" if  args.content else ""}{" force" if args.force else ""}{" skip" if args.skip else ""}{" sync" if args.sync else ""}
+>> source: {args.source}
+>> destination: {args.destination}"""
+        )
     try:
         c = AdbClient().__enter__()
         c.__exit__()
