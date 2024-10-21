@@ -106,7 +106,7 @@ def transfer(device: Device, storage: Storage, args, ui: UserInterface):
     progress.end(ui.animate_stop)
 
 
-def sync(device: Device, storage: Storage, ui: UserInterface, args):
+def sync(device: Device, storage: Storage, args, ui: UserInterface):
     source_interface = storage if args.reverse else device
     dest_interface = device if args.reverse else storage
     local = args.reverse
@@ -145,9 +145,9 @@ def sync(device: Device, storage: Storage, ui: UserInterface, args):
         ui.show(progress.window)
         progress.start()
         if args.reverse:
-            device.pull_files(storage, progress, *file_listing.files)
-        else:
             device.push_files(progress, *file_listing.files)
+        else:
+            device.pull_files(storage, progress, *file_listing.files)
         progress.end(sync_callback)
 
 
