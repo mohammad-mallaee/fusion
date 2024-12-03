@@ -10,7 +10,7 @@ from fusion.helpers.fileListing import SyncList
 class Progress(AlignedContainer):
     def __init__(self, file_listing: SyncList) -> None:
         super().__init__(box=boxes.Box(["", " x ", ""]))
-        self.total_size = file_listing.total_size
+        self.total_size = file_listing.transfer_size
         self.total_transfer = 0
         self.file_transfer = 0
         self.total_files = len(file_listing.files)
@@ -43,7 +43,7 @@ class Progress(AlignedContainer):
         err_msg = (
             "There was no error during transfer"
             if self.total_transfer == self.total_size
-            else f"[lightred]There was error during transfer. {self.files} / {self.total_files} of files were transferred"
+            else f"[orangered]There was error during transfer. {self.files} / {self.total_files} of files were transferred"
         )
         self.set_widgets(
             [

@@ -13,9 +13,9 @@ class ProgresBar(Widget):
         self.progress = max(min(value, 100), 0)
 
     def get_lines(self) -> list[str]:
-        bar_width = self.width - 6 - 1 - 2 - 2
+        bar_width = self.width - 6 - 1
         fill_chars = self.fill_char * floor(bar_width / 100 * self.progress)
         empty_chars = self.fill_char * (bar_width - len(fill_chars))
-        progress = tim.parse(f"[#05eb59]{fill_chars}[#383838]{empty_chars}")
-        progress = f"[{self.progress:>3}%] ｜{progress}｜"
+        progress_bar = tim.parse(f"[#05eb59]{fill_chars}[#383838]{empty_chars}")
+        progress = f"[{self.progress:>3}%] {progress_bar}"
         return [progress]
