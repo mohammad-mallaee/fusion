@@ -32,8 +32,9 @@ class AdbClient:
         result = subprocess.run(
             ["adb", "start-server"],
             stderr=subprocess.PIPE,
+            timeout=10
         )
-        if result.stderr:
+        if result.stderr and "starting now" not in result.stderr.decode():
             log.error("AdbError", result.stderr.decode())
             raise FileNotFoundError()
 

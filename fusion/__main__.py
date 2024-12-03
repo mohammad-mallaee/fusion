@@ -14,6 +14,8 @@ from fusion.ui.message import show_message
 from fusion.config import configure
 from fusion.helpers.logger import log
 
+import traceback
+
 
 def transfer(args):
     if args.command == SYNC:
@@ -31,9 +33,9 @@ def transfer(args):
     try:
         c = AdbClient().__enter__()
         c.__exit__()
-    except FileNotFoundError:
-        show_message("Connection Error", "Couldn't find adb", stop=True, wait=0.5)
-        log.error("Connection_Error -> Couldn't find adb")
+    except Exception as e:
+        show_message("Connection Error", "Error while starting ADB", stop=True, wait=0.5)
+        log.error("".join(traceback.format_exception(e)))
     else:
         with AdbClient() as client, UserInterface() as ui:
             storage = Storage()
