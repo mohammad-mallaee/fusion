@@ -80,7 +80,7 @@ fusion push --content ./Documents /sdcard/MyDocs
 ```
 
 ### Path Completion
-*Fusion* uses argcomplete to provide path completion on pressing `<Tab>`. According to argcomplete [documentaion](eval "$(register-python-argcomplete my-python-app)") you should register the fusion executable binary in order to have this features so you have to add this line to you shell startup file :
+*Fusion* uses argcomplete to provide path completion when pressing  `<Tab>`. According to argcomplete [documentation](https://kislyuk.github.io/argcomplete/index.html#argcomplete-bash-zsh-tab-completion-for-argparse)  you need to register the *Fusion* executable binary to enable this feature. To do so, add the following line to your shell startup file:
 ```bash
 eval "$(register-python-argcomplete fusion)"
 ```
