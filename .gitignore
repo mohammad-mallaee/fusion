@@ -8,3 +8,4 @@ fusion.log*
 .pytest_cache
 .venv
 build
+Makefile

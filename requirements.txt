@@ -1,2 +1,4 @@
-pytest==6.2.4
 pytermgui==7.7.1
+argcomplete==3.5.3
+pytest==6.2.4
+setuptools==75.6.0

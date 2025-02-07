@@ -1,6 +1,8 @@
 import argparse
+import argcomplete
 from threading import Thread
 
+from fusion.helpers.completion import device_completer, sync_completer
 from fusion.ui import UserInterface
 from fusion.client import AdbClient
 from fusion.device import Device
@@ -26,7 +28,7 @@ def transfer(args):
         )
     else:
         log.info(
-            f"""{args.command}{" dryrun" if args.dryrun else ""}{" content" if  args.content else ""}{" force" if args.force else ""}{" skip" if args.skip else ""}{" sync" if args.sync else ""}
+            f"""{args.command}{" dryrun" if args.dryrun else ""}{" content" if args.content else ""}{" force" if args.force else ""}{" skip" if args.skip else ""}{" sync" if args.sync else ""}
 >> source: {args.source}
 >> destination: {args.destination}"""
         )
@@ -34,7 +36,9 @@ def transfer(args):
         c = AdbClient().__enter__()
         c.__exit__()
     except Exception as e:
-        show_message("Connection Error", "Error while starting ADB", stop=True, wait=0.5)
+        show_message(
+            "Connection Error", "Error while starting ADB", stop=True, wait=0.5
+        )
         log.error("".join(traceback.format_exception(e)))
     else:
         with AdbClient() as client, UserInterface() as ui:
@@ -102,8 +106,10 @@ def main():
     config_parser.set_defaults(func=configure)
 
     pull_parser = sub_parsers.add_parser(PULL)
-    pull_parser.add_argument("source")
-    pull_parser.add_argument("destination", nargs="?", default="./")
+    pull_parser.add_argument("source").completer = device_completer
+    pull_parser.add_argument(
+        "destination", nargs="?", default="./"
+    ).completer = argcomplete.completers.FilesCompleter()
     pull_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
     pull_parser.add_argument("-c", "--content", action="store_true")
     pull_resolve_methods = pull_parser.add_mutually_exclusive_group()
@@ -113,8 +119,12 @@ def main():
     pull_parser.set_defaults(func=transfer, command=PULL)
 
     push_parser = sub_parsers.add_parser(PUSH)
-    push_parser.add_argument("source")
-    push_parser.add_argument("destination", nargs="?", default="sdcard/")
+    push_parser.add_argument(
+        "source"
+    ).completer = argcomplete.completers.FilesCompleter()
+    push_parser.add_argument(
+        "destination", nargs="?", default="sdcard/"
+    ).completer = device_completer
     push_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
     push_parser.add_argument("-c", "--content", action="store_true")
     push_resolve_methods = push_parser.add_mutually_exclusive_group()
@@ -124,8 +134,8 @@ def main():
     push_parser.set_defaults(func=transfer, command=PUSH)
 
     sync_parser = sub_parsers.add_parser(SYNC)
-    sync_parser.add_argument("source")
-    sync_parser.add_argument("destination")
+    sync_parser.add_argument("source").completer = sync_completer("source")
+    sync_parser.add_argument("destination").completer = sync_completer("destination")
     sync_parser.add_argument("-r", "--reverse", action="store_true")
     sync_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
     sync_parser.add_argument("-d", "--delete", action="store_true")
@@ -138,6 +148,7 @@ def main():
     # push_parser.add_argument("-r", "--reverse", action="store_true")
     # push_parser.set_defaults(func=transfer, command=DELETE)
 
+    argcomplete.autocomplete(parser)
     args = parser.parse_args()
     if "command" not in args:
         parser.print_help()

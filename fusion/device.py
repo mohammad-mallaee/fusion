@@ -14,6 +14,7 @@ from fusion.helpers.progress import Progress
 from fusion.helpers.interface import PathInterface
 import posixpath
 
+
 class Device(PathInterface):
     def __init__(
         self,
@@ -51,7 +52,7 @@ class Device(PathInterface):
             chunk_size = len(chunk)
         return chunk
 
-    def send_shell_command(self, shell_cmd: str, wait = False):
+    def send_shell_command(self, shell_cmd: str, wait=False):
         self.reset_connection()
         self.client.send_shell_command(shell_cmd)
         if wait:
@@ -104,6 +105,22 @@ class Device(PathInterface):
         if isinstance(data, str):
             stat = self.stat(data)
         return File(None, stat.path, stat.name, stat.size, stat.modified_time)
+
+    def ls(self, path):
+        self.send_sync_command("LIST", path)
+        entities = []
+        while True:
+            id = self.client.read_string(4)
+            if id == DONE:
+                self.client.recv(1024)
+                break
+            if id == DENT:
+                bytes = self.client.recv(16)
+                mode, size, modified_time, name_length = struct.unpack("<IIII", bytes)
+                name = self.client.read_string(name_length)
+                if name != "." and name != "..":
+                    entities.append(name)
+        return entities
 
     def list_files(self, path, file_listing: SyncList) -> None:
         def _ls(client, path):
