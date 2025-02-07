@@ -5,7 +5,7 @@ with open("README.md", "r") as f:
 
 setup(
     name="fusion-sync",
-    version="0.2.3",
+    version="0.3.85",
     description="Keep your files in sync",
     long_description=readme,
     long_description_content_type="text/markdown",
@@ -14,6 +14,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         "pytermgui",
+        "argcomplete"
     ],
     package_data={
         "fusion": ["configs/*"],
