@@ -78,3 +78,9 @@ To push all documents from your computer to your device and change its name to `
 ```bash
 fusion push --content ./Documents /sdcard/MyDocs
 ```
+
+### Path Completion
+*Fusion* uses argcomplete to provide path completion on pressing `<Tab>`. According to argcomplete [documentaion](eval "$(register-python-argcomplete my-python-app)") you should register the fusion executable binary in order to have this features so you have to add this line to you shell startup file :
+```bash
+eval "$(register-python-argcomplete fusion)"
+```
