@@ -240,6 +240,7 @@ class Device(PathInterface):
             try:
                 self._pull_file(storage, progress, file)
             except Exception as e:
+                raise e
+            finally:
                 if not file.buffer.closed:
                     file.buffer.close()
-                raise e
