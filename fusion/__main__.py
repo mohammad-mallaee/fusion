@@ -36,9 +36,7 @@ def transfer(args):
         c = AdbClient().__enter__()
         c.__exit__()
     except Exception as e:
-        show_message(
-            "Connection Error", "Error while starting ADB", stop=True, wait=0.5
-        )
+        show_message("Connection Error", "Error while starting ADB", stop=True)
         log.error("".join(traceback.format_exception(e)))
     else:
         with AdbClient() as client, UserInterface() as ui:

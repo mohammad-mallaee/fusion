@@ -8,14 +8,13 @@ def show_message(
     button_label="OK",
     ui: UserInterface = None,
     callback: callable = None,
-    wait=0.5,
     stop=False,
 ):
     ui = ui if ui else UserInterface()
 
     def on_click(_):
         if stop:
-            ui.animate_stop(wait)
+            ui.stop()
         elif callback:
             callback()
 
