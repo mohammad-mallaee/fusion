@@ -18,7 +18,7 @@ def handle_exception(e, ui):
     sleep(0.2)
     log.error("".join(traceback.format_exception(e)))
     if not ui.exit_event.is_set():
-        show_message("Unexpected Error", str(e), ui=ui, stop=True, wait=0.5)
+        show_message("Unexpected Error", str(e), ui=ui, stop=True)
 
 
 def fusion(device: Device, storage: Storage, ui: UserInterface, args):
@@ -38,7 +38,7 @@ def fusion(device: Device, storage: Storage, ui: UserInterface, args):
                 progress.start()
                 ui.show(progress.window)
                 device.pull_files(storage, progress, file)
-                progress.end(ui.animate_stop)
+                progress.end(ui.stop)
             elif command == PUSH:
                 file = storage.get_file(source)
                 file.remote_path = dest
@@ -49,7 +49,7 @@ def fusion(device: Device, storage: Storage, ui: UserInterface, args):
                 progress.start()
                 ui.show(progress.window)
                 device.push_files(progress, file)
-                progress.end(ui.animate_stop)
+                progress.end(ui.stop)
         else:
             if command == PULL or command == PUSH:
                 return transfer(device, storage, args, ui)
@@ -94,7 +94,7 @@ def transfer(device: Device, storage: Storage, args, ui: UserInterface):
     ui.show(file_listing.window)
     source_interface.list_files(args.source, file_listing)
     if args.dryrun:
-        return file_listing.show_result(ui.animate_stop)
+        return file_listing.show_result(ui.stop)
 
     progress = Progress(file_listing)
     ui.show(progress.window)
@@ -103,7 +103,7 @@ def transfer(device: Device, storage: Storage, args, ui: UserInterface):
         device.pull_files(storage, progress, *file_listing.files)
     elif command == PUSH:
         device.push_files(progress, *file_listing.files)
-    progress.end(ui.animate_stop)
+    progress.end(ui.stop)
 
 
 def sync(device: Device, storage: Storage, args, ui: UserInterface):
@@ -132,11 +132,11 @@ def sync(device: Device, storage: Storage, args, ui: UserInterface):
                 dest_interface.list_files(args.destination, delete_listing)
                 if not args.dryrun:
                     dest_interface.delete_files(delete_listing)
-                delete_listing.show_result(ui.animate_stop)
+                delete_listing.show_result(ui.stop)
             except Exception as e:
                 handle_exception(e, ui)
         else:
-            ui.animate_stop()
+            ui.stop()
 
     if args.dryrun:
         file_listing.show_result(sync_callback)
@@ -166,4 +166,4 @@ def delete(device: Device, storage: Storage, ui: UserInterface, args):
     dest_interface.list_files(args.destination, delete_listing)
     if not args.dryrun:
         dest_interface.delete_files(delete_listing)
-    delete_listing.show_result(ui.animate_stop)
+    delete_listing.show_result(ui.stop)
