@@ -1,7 +1,10 @@
 import logging
 from logging.handlers import RotatingFileHandler
-from os.path import dirname, abspath, join
+from os.path import join
 import importlib
+import subprocess
+
+from fusion.config import config
 
 log_formatter = logging.Formatter(
     "%(asctime)s %(levelname)s %(funcName)s(%(lineno)d) %(message)s"
@@ -19,3 +22,11 @@ log = logging.getLogger("root")
 log.setLevel(logging.INFO)
 
 log.addHandler(my_handler)
+
+
+def handle_log_command(args):
+    if args.command == "open":
+        subprocess.run([config.editor_name, logFile])
+    elif args.command == "copy":
+        subprocess.run(["cp", logFile, args.path])
+        print("copied 'fusion.log' file into", args.path)

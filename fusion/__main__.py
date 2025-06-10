@@ -14,7 +14,7 @@ from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
 from fusion.ui.prompt_list import PromptList
 from fusion.ui.message import show_message
 from fusion.config import configure
-from fusion.helpers.logger import log
+from fusion.helpers.logger import handle_log_command, log
 
 import traceback
 
@@ -145,6 +145,11 @@ def main():
     # push_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
     # push_parser.add_argument("-r", "--reverse", action="store_true")
     # push_parser.set_defaults(func=transfer, command=DELETE)
+
+    log_parser = sub_parsers.add_parser("log")
+    log_parser.add_argument("command", choices=["open", "copy"])
+    log_parser.add_argument("path", nargs="?", default=".")
+    log_parser.set_defaults(func=handle_log_command)
 
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
