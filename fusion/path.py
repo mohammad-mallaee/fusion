@@ -4,13 +4,13 @@ from fusion.helpers.utils import can_creat_directory
 from fusion.helpers.interface import PathInterface
 import posixpath
 
-from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
+from fusion.helpers.constants import PULL, PUSH, SYNC, CLEANUP
 
 
 def process_paths(source_interface: PathInterface, dest_interface: PathInterface, args):
     if args.command == PULL or args.command == PUSH:
         process_transfer_paths(source_interface, dest_interface, args)
-    elif args.command == SYNC or args.command == DELETE:
+    elif args.command == SYNC or args.command == CLEANUP:
         process_sync_paths(source_interface, dest_interface, args)
 
 
