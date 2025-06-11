@@ -10,7 +10,7 @@ from fusion.storage import Storage
 from fusion.index import fusion
 
 from fusion.path import process_paths
-from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
+from fusion.helpers.constants import PULL, PUSH, SYNC, CLEANUP
 from fusion.ui.prompt_list import PromptList
 from fusion.ui.message import show_message
 from fusion.config import configure
@@ -20,9 +20,9 @@ import traceback
 
 
 def transfer(args):
-    if args.command == SYNC:
+    if args.command == SYNC or args.command == CLEANUP:
         log.info(
-            f"""{args.command}{" dryrun" if args.dryrun else ""} sync
+            f"""{args.command}{" dryrun" if args.dryrun else ""}
 >> source: {args.source}
 >> destination: {args.destination}"""
         )
@@ -51,7 +51,7 @@ def transfer(args):
                 def _start_thread():
                     Thread(target=fusion, args=(device, storage, ui, args)).start()
 
-                if command in [PULL, SYNC, DELETE]:
+                if command in [PULL, SYNC, CLEANUP]:
                     process_paths(device, storage, args)
                 elif command == PUSH:
                     process_paths(storage, device, args)
@@ -139,12 +139,12 @@ def main():
     sync_parser.add_argument("-d", "--delete", action="store_true")
     sync_parser.set_defaults(func=transfer, command=SYNC)
 
-    # push_parser = sub_parsers.add_parser(DELETE)
-    # push_parser.add_argument("source")
-    # push_parser.add_argument("destination")
-    # push_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
-    # push_parser.add_argument("-r", "--reverse", action="store_true")
-    # push_parser.set_defaults(func=transfer, command=DELETE)
+    push_parser = sub_parsers.add_parser(CLEANUP)
+    push_parser.add_argument("source")
+    push_parser.add_argument("destination")
+    push_parser.add_argument("--dry", "--dryrun", dest="dryrun", action="store_true")
+    push_parser.add_argument("-r", "--reverse", action="store_true")
+    push_parser.set_defaults(func=transfer, command=CLEANUP)
 
     log_parser = sub_parsers.add_parser("log")
     log_parser.add_argument("command", choices=["open", "copy"])
@@ -156,7 +156,7 @@ def main():
     if "command" not in args:
         parser.print_help()
     else:
-        if args.command == SYNC or args.command == DELETE:
+        if args.command == SYNC or args.command == CLEANUP:
             args.destination = (
                 "./" if args.reverse and args.destination is None else args.destination
             )

@@ -9,7 +9,7 @@ from fusion.helpers.deleteListing import DeleteList
 from fusion.helpers.progress import Progress
 from fusion.ui.message import show_message
 
-from fusion.helpers.constants import PULL, PUSH, SYNC, DELETE
+from fusion.helpers.constants import PULL, PUSH, SYNC, CLEANUP
 from fusion.config import config
 from fusion.helpers.logger import log
 
@@ -55,8 +55,8 @@ def fusion(device: Device, storage: Storage, ui: UserInterface, args):
                 return transfer(device, storage, args, ui)
             elif command == SYNC:
                 return sync(device, storage, args, ui)
-            elif command == DELETE:
-                return delete(device, storage, args, ui)
+            elif command == CLEANUP:
+                return cleanup(device, storage, args, ui)
 
     except Exception as e:
         handle_exception(e, ui)
@@ -118,21 +118,11 @@ def sync(device: Device, storage: Storage, args, ui: UserInterface):
     ui.show(file_listing.window)
     source_interface.list_files(args.source, file_listing)
 
-    def get_source_path(path):
-        return path.replace(args.destination, args.source)
-
     def sync_callback():
         if args.delete:
             try:
                 device.reset_connection(True)
-                delete_listing = DeleteList(
-                    get_source_path, source_interface.should_delete, local=local
-                )
-                ui.show(delete_listing.window)
-                dest_interface.list_files(args.destination, delete_listing)
-                if not args.dryrun:
-                    dest_interface.delete_files(delete_listing)
-                delete_listing.show_result(ui.stop)
+                cleanup(device, storage, args, ui)
             except Exception as e:
                 handle_exception(e, ui)
         else:
@@ -151,7 +141,7 @@ def sync(device: Device, storage: Storage, args, ui: UserInterface):
         progress.end(sync_callback)
 
 
-def delete(device: Device, storage: Storage, ui: UserInterface, args):
+def cleanup(device: Device, storage: Storage, args, ui: UserInterface):
     source_interface = storage if args.reverse else device
     dest_interface = device if args.reverse else storage
     local = args.reverse
