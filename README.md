@@ -84,3 +84,46 @@ fusion push --content ./Documents /sdcard/MyDocs
 ```bash
 eval "$(register-python-argcomplete fusion)"
 ```
+
+### Configuration
+
+Fusion allows you to customize its behavior through a configuration file. You can manage your configuration using the following commands:
+
+- **View or Edit current configuration:**
+  ```bash
+  fusion config <show|edit>
+  ```
+  edit will open the configuration file in the default editor
+- **Set, Add or Remove a configuration value:**
+  ```bash
+  fusion config <set|add|remove> <key> <value>
+  ```
+
+- **Reset configuration to default:**
+  ```bash
+  fusion config reset
+  ```
+
+**Common configuration keys:**
+- `excluded_paths`: List of paths to exclude from sync/transfer.
+- `hidden_files`: A switch to skip hidden files (files that start with ".")
+- `editor`: Editor used for editing configuration and logs (e.g., `vi`, `notepad`).
+- `conflict_resolution`: How to handle file conflicts (`sync`, `force`, or `skip`).
+
+The configuration file is stored in Fusion’s config directory. You can also edit it directly if needed.
+
+### Logs
+
+Fusion keeps a log of its operations for troubleshooting and auditing purposes. You can manage logs with the following commands:
+
+- **Open the log file in your configured editor:**
+  ```bash
+  fusion log open
+  ```
+
+- **Copy the log file to a specific directory:**
+  ```bash
+  fusion log copy <destination_path>
+  ```
+
+The log file (`fusion.log`) contains detailed information about transfers, errors, and other events. This can be helpful for debugging or support.
