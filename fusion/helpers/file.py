@@ -4,6 +4,7 @@ from time import time
 import os
 
 default_file_mode = 0o755 | stat.S_IFREG
+buffer_size = 1024 * 1024 * 20
 
 
 # file properties should be extracted from the actual file.
@@ -40,7 +41,8 @@ class File:
         os.open(self.local_path, flags)
 
     def open_for_writing(self):
-        self.buffer = open(self.local_path, "wb")
+        raw_file = open(self.local_path, "wb")
+        self.buffer = BufferedWriter(raw_file, buffer_size=buffer_size)
 
     def set_modified_time(self):
         os.utime(self.local_path, times=(self.modified_time, self.modified_time))
