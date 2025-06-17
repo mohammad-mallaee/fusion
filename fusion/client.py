@@ -80,15 +80,18 @@ class AdbClient:
     def list_devices(self) -> tuple[list[str], list[str]]:
         self.send_command("host:devices-l")
         output = self.read_string_block()
-        pattern = r"^(\S+)\s+(\S+).*\bmodel:(\S+)"
+        pattern = r"^(\S+)\s+(\S+).*"
         devices = [
             re.search(pattern, device).groups() for device in output.split("\n")[:-1]
         ]
         online_devices = list(
             filter(lambda d: d[1] == "device" or d[1] == "recovery", devices)
         )
+        offline_unauth_devices = list(
+            filter(lambda d: d[1] == "offline" or d[1] == "unauthorized", devices)
+        )
         self.reset_connection()
-        return online_devices
+        return online_devices, offline_unauth_devices
 
     def read_string_until_close(self, encoding: str = "utf-8") -> str:
         content = b""
