@@ -1,11 +1,12 @@
 from setuptools import setup, find_packages
+from fusion import __version__
 
 with open("README.md", "r") as f:
     readme = f.read()
 
 setup(
     name="fusion-sync",
-    version="0.4.0",
+    version=__version__,
     description="Keep your files in sync",
     long_description=readme,
     long_description_content_type="text/markdown",

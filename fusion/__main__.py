@@ -15,6 +15,7 @@ from fusion.ui.prompt_list import PromptList
 from fusion.ui.message import show_message
 from fusion.config import configure
 from fusion.helpers.logger import handle_log_command, log
+from fusion import __version__
 
 import traceback
 
@@ -93,6 +94,8 @@ def main():
         epilog="I'll be happy to take your comments and feedbacks",
     )
 
+    parser.add_argument("-v", "--version", action="store_true")
+
     sub_parsers = parser.add_subparsers()
 
     config_parser = sub_parsers.add_parser("config")
@@ -153,7 +156,9 @@ def main():
 
     argcomplete.autocomplete(parser)
     args = parser.parse_args()
-    if "command" not in args:
+    if args.version:
+        print(f"v{__version__}")
+    elif "command" not in args:
         parser.print_help()
     else:
         if args.command == SYNC or args.command == CLEANUP:
