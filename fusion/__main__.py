@@ -42,7 +42,7 @@ def transfer(args):
     else:
         with AdbClient() as client, UserInterface() as ui:
             storage = Storage()
-            online_devices = client.list_devices()
+            online_devices, offline_unauth_devices = client.list_devices()
 
             def start_transfer(device_serial):
                 device = Device(device_serial, client)
@@ -73,6 +73,13 @@ def transfer(args):
             elif len(online_devices) == 1:
                 start_transfer(online_devices[0][0])
             else:
+                unavailable_devices_message = (
+                    [
+                        f"However, {len(offline_unauth_devices)} device(s) are offline or unathorized and cannot be used."
+                    ]
+                    if len(offline_unauth_devices) > 0
+                    else []
+                )
                 show_message(
                     "Connection Error",
                     "\n".join(
@@ -80,6 +87,7 @@ def transfer(args):
                             "There is no device connected",
                             "You can check the connected devices using `adb devices` command",
                         ]
+                        + unavailable_devices_message
                     ),
                     ui=ui,
                     stop=True,
