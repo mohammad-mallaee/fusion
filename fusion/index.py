@@ -9,9 +9,9 @@ from fusion.helpers.deleteListing import DeleteList
 from fusion.helpers.progress import Progress
 from fusion.ui.message import show_message
 
-from fusion.helpers.constants import PULL, PUSH, SYNC, CLEANUP
-from fusion.config import config
-from fusion.helpers.logger import log
+from fusion.lib.constants import PULL, PUSH, SYNC, CLEANUP
+from fusion.utils.config import config
+from fusion.utils.logger import log
 
 
 def handle_exception(e, ui):

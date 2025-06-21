@@ -3,7 +3,7 @@ from fusion.helpers.fileListing import SyncList
 from fusion.helpers.deleteListing import DeleteList
 from fusion.helpers.file import File
 from fusion.helpers.stat import Stat
-from fusion.helpers.interface import PathInterface
+from fusion.interface import PathInterface
 
 
 class Storage(PathInterface):

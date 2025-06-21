@@ -16,7 +16,7 @@ class Config:
         self.conflict_resolution = data["conflict_resolution"]
         if self.conflict_resolution not in ["sync", "force", "skip"]:
             raise ValueError(
-                "Invalid conflict resolution. Must be one of: sync, force, skip"
+                "Invalid conflict resolution. It must be one of: sync, force, skip"
             )
 
     def __str__(self) -> str:
