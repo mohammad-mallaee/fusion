@@ -1,9 +1,9 @@
 from pytermgui import boxes, Window, Button
 
 from fusion.helpers.file import File
-from fusion.helpers.utils import truncate_first, get_size
+from fusion.utils.functions import truncate_first, get_size
 from fusion.ui.container import AlignedContainer
-from fusion.config import config
+from fusion.utils.config import config
 
 
 class DeleteList(AlignedContainer):

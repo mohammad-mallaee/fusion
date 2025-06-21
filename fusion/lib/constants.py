@@ -8,7 +8,6 @@ STAT = "STAT"
 
 DENT = "DENT"  # Directory Entity
 
-
 PULL = "pull"
 PUSH = "push"
 SYNC = "sync"

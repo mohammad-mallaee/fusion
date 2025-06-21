@@ -2,19 +2,19 @@ import argparse
 import argcomplete
 from threading import Thread
 
-from fusion.helpers.completion import device_completer, sync_completer
+from fusion.lib.completion import device_completer, sync_completer
 from fusion.ui import UserInterface
 from fusion.client import AdbClient
 from fusion.device import Device
 from fusion.storage import Storage
 from fusion.index import fusion
 
-from fusion.path import process_paths
-from fusion.helpers.constants import PULL, PUSH, SYNC, CLEANUP
+from fusion.lib.path import process_paths
+from fusion.lib.constants import PULL, PUSH, SYNC, CLEANUP
 from fusion.ui.prompt_list import PromptList
 from fusion.ui.message import show_message
-from fusion.config import configure
-from fusion.helpers.logger import handle_log_command, log
+from fusion.utils.config import configure
+from fusion.utils.logger import handle_log_command, log
 from fusion import __version__
 
 import traceback
@@ -166,7 +166,7 @@ def main():
     args = parser.parse_args()
     if args.version:
         print(f"v{__version__}")
-    elif "command" not in args:
+    elif "command" not in args: # None of sub-parsers is triggered
         parser.print_help()
     else:
         if args.command == SYNC or args.command == CLEANUP:

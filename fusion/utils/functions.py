@@ -9,11 +9,11 @@ def truncate_middle(text, max_length):
 
 def truncate_first(text, max_length):
     return (
-        text if len(text) <= max_length else f"...{text[len(text) - max_length + 3:]}"
+        text if len(text) <= max_length else f"...{text[len(text) - max_length + 3 :]}"
     )
 
 
-def can_creat_directory(path: str):
+def can_create_directory(path: str):
     parts = path.split(os.path.sep)
     for i in range(1, len(parts) + 1):
         p = os.path.join(*parts[:i])

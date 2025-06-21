@@ -1,10 +1,10 @@
 from os.path import basename, join, normpath, dirname, sep as seperator
 import stat
-from fusion.helpers.utils import can_creat_directory
-from fusion.helpers.interface import PathInterface
+from fusion.utils.functions import can_create_directory
+from fusion.interface import PathInterface
 import posixpath
 
-from fusion.helpers.constants import PULL, PUSH, SYNC, CLEANUP
+from fusion.lib.constants import PULL, PUSH, SYNC, CLEANUP
 
 
 def process_paths(source_interface: PathInterface, dest_interface: PathInterface, args):
@@ -172,7 +172,7 @@ def process_transfer_paths(
         else:
             dest_path = join_dest(dest_path, source_stats.name)
             args.destination = dest_path
-            if not can_creat_directory(dest_directory):
+            if not can_create_directory(dest_directory):
                 args.error = (
                     "destination directory does not exist! and"
                     + "\ncreating a new directory is not possible:"
@@ -203,7 +203,7 @@ def process_transfer_paths(
                 if args.content
                 else join_dest(dest_path, basename(source_path))
             )
-            if not can_creat_directory(dest_path):
+            if not can_create_directory(dest_path):
                 args.error = (
                     "destination directory does not exist! and"
                     + "\ncreating a new directory is not possible:"

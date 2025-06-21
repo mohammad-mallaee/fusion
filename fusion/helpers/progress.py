@@ -1,7 +1,7 @@
 from pytermgui import boxes, Window, Button
 from time import perf_counter
 from fusion.helpers.file import File
-from fusion.helpers.utils import truncate_middle, get_size, get_percent
+from fusion.utils.functions import truncate_middle, get_size, get_percent
 from fusion.ui.container import AlignedContainer
 from fusion.ui.progress_bar import ProgresBar
 from fusion.helpers.fileListing import SyncList

@@ -3,16 +3,19 @@ import os
 import stat as st
 
 from fusion.client import AdbClient
-from fusion.exceptions import AdbError
 from fusion.storage import Storage
-from fusion.helpers.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
+from fusion.lib.constants import DATA, DENT, STAT, DONE, OKAY, FAIL
 from fusion.helpers.fileListing import SyncList
 from fusion.helpers.deleteListing import DeleteList
 from fusion.helpers.file import File
 from fusion.helpers.stat import Stat
 from fusion.helpers.progress import Progress
-from fusion.helpers.interface import PathInterface
+from fusion.interface import PathInterface
 import posixpath
+
+
+class AdbError(Exception):
+    pass
 
 
 class Device(PathInterface):
@@ -58,15 +61,6 @@ class Device(PathInterface):
         if wait:
             self.client.read_string_until_close()
 
-    def should_sync(self, file: File):
-        self.send_sync_command("STAT", file.remote_path)
-        self.client.read_string(4)
-        _, size, mtime = struct.unpack("<III", self.client.recv(12))
-        return file.modified_time > mtime and file.size != size
-
-    def should_delete(self, file: File):
-        return not self.exists(file.remote_path)
-
     def stat(self, path, follow_symlinks=True):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
@@ -86,12 +80,6 @@ class Device(PathInterface):
             name=os.path.basename(path),
         )
 
-    def delete_files(self, delete_listing: DeleteList):
-        for file in delete_listing.files:
-            self.send_shell_command(f'rm "{file.remote_path}"')
-            delete_listing.deleted += 1
-            delete_listing.delete_size += file.size
-
     def exists(self, path):
         self.send_sync_command("STAT", path)
         id = self.client.read_string(4)
@@ -105,6 +93,21 @@ class Device(PathInterface):
         if isinstance(data, str):
             stat = self.stat(data)
         return File(None, stat.path, stat.name, stat.size, stat.modified_time)
+
+    def should_sync(self, file: File):
+        self.send_sync_command("STAT", file.remote_path)
+        self.client.read_string(4)
+        _, size, mtime = struct.unpack("<III", self.client.recv(12))
+        return file.modified_time > mtime and file.size != size
+
+    def should_delete(self, file: File):
+        return not self.exists(file.remote_path)
+
+    def delete_files(self, delete_listing: DeleteList):
+        for file in delete_listing.files:
+            self.send_shell_command(f'rm "{file.remote_path}"')
+            delete_listing.deleted += 1
+            delete_listing.delete_size += file.size
 
     def ls(self, path):
         self.send_sync_command("LIST", path)
